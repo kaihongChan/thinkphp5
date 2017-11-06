@@ -37,7 +37,7 @@
                     <legend>{{ categories[k|lower] is defined ? categories[k|lower] : k|lower }}</legend>
                     {% for policy in policyList %}
                     <div class="col-xs-4">
-                        <input type="checkbox" name="policies[]" value="{{ policy.label }}" id="policy_{{ policy.label }}" {% if policy.label in groupInfo.policies %}checked="checked"{% endif %}/>
+                        <input type="checkbox" name="policies[]" value="{{ policy.label }}" id="" {% if policy.label in groupInfo.policies %}checked="checked"{% endif %}/>
                         <label for="policy_{{ policy.label }}">{{ policy.description }}</label>
                     </div>
                     {% endfor %}
