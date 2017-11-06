@@ -1,0 +1,38 @@
+{% extends 'public/base.html' %}
+
+{% block scripts %}
+<script>if(window.top !== window.self){ window.top.location = window.location;}</script>
+<script src="__static__/hplus/js/jquery.min.js?v=2.1.4"></script>
+<script src="__static__/hplus/js/bootstrap.min.js?v=3.3.5"></script>
+{% endblock %}
+
+{% block body %}
+<body class="gray-bg">
+    <div class="middle-box text-center loginscreen  animated fadeInDown">
+    <div>
+        <div>
+
+            <h1 class="logo-name">H+</h1>
+
+        </div>
+        <h2>欢迎使用</h2>
+
+        <form class="m-t" role="form" action="/admin/login/index" method="post">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="用户名" name="username" value="{{ username }}" required="">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" placeholder="密码" name="password" required="">
+            </div>
+            <button type="submit" class="btn btn-outline btn-primary block full-width m-b">登 录</button>
+
+            <!--<p class="text-muted text-center"> <a href="login.html#"><small>忘记密码了？</small></a> | <a href="register.html">注册一个新账号</a>-->
+            {% if error %}
+            <p class="text-center text-danger"><strong>{{ error }}</strong></p>
+            {% endif %}
+
+        </form>
+    </div>
+</div>
+</body>
+{% endblock %}
