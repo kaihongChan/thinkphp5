@@ -10,12 +10,12 @@
 <body class="gray-bg">
     <div class="wrapper wrapper-content  animated fadeInRight">
     <div class="row">
-        <div class="ibox ">
+        <div class="ibox float-e-margins">
             <div class="ibox-title">
                 <button onclick="addGroup();" class="btn btn-primary btn-outline">添加组</button>
             </div>
-            <div class="ibox-content">
-                <table class="table table-striped table-bordered table-hover " id="groupTable">
+            <div class="ibox-content dataTables_wrapper form-inline">
+                <table class="table table-striped table-bordered table-hover" id="groupTable">
                     <thead>
                     <tr>
                         <th>ID</th>
@@ -127,6 +127,7 @@
             type: 'GET',
             success: function (tpl) {
                 var dialog = bootbox.dialog({
+                    size:'large',
                     title: '添加用户组',
                     message: tpl,
                 });
