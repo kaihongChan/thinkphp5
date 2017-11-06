@@ -8,11 +8,11 @@
 
 {% block body %}
 <body class="gray-bg">
-<div class="wrapper wrapper-content  animated fadeInRight">
+<div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="ibox ">
             <div class="ibox-title">
-                <button onclick="addUser();" class="btn btn-primary">添加用户</button>
+                <button onclick="addUser();" class="btn btn-primary btn-outline">添加用户</button>
             </div>
             <div class="ibox-content">
                 <table class="table table-striped table-bordered table-hover " id="userTable">
@@ -23,6 +23,7 @@
                         <th>显示名</th>
                         <th>所属用户组</th>
                         <th>备注</th>
+                        <th>状态</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -32,6 +33,7 @@
         </div>
     </div>
 </div>
+</body>
 {% endblock %}
 
 {% block scripts %}
@@ -73,6 +75,11 @@
                         'sClass':'text-center',
                         'sWidth':'60',
                         'bSortable':false
+                    },{
+                        "mData": 'status',
+                        'sClass':'text-center',
+                        'sWidth':'60',
+                        'bSortable':false
                     }, {
                         "mData": 'action',
                         'sClass':'text-center',
@@ -88,10 +95,10 @@
                 },
                 'aoColumnDefs' : [
                     {
-                        'aTargets' : [5],
+                        'aTargets' : [6],
                         'mRender' : function (data, type, full) {
-                            return '<button class="btn btn-info" type="button" onclick="editUser('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-danger " type="button" onclick="deleteUser('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
+                            return '<button class="btn btn-info btn-outline" type="button" onclick="editUser('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
+                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteUser('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
                         }
                     }
                 ],
@@ -108,6 +115,14 @@
                             fnCallback(resp);
                         }
                     });
+                },
+                "fnRowCallback" : function(nRow, aData, iDisplayIndex) {
+//                    if(aData.status == 0){
+//                        $('td:eq(5)', nRow).html('<span class="label label-sm label-warning">禁用</span>');
+//                    }else{
+//                        $('td:eq(5)', nRow).html('<span class="label label-sm label-success">启用</span>');
+//                    }
+//                    return nRow;
                 },
             }
         );
@@ -155,10 +170,48 @@
 
     //删除用户
     function deleteUser(id) {
-        if(id == 1) {
-            bootbox.alert('超级管理员不可删除！');
-        }
-        bootbox.confirm('delete?');
+        bootbox.confirm({
+            message: "确定删除用户？",
+            buttons: {
+                confirm: {
+                    label: '确认',
+                    className: 'btn-success btn-outline'
+                },
+                cancel: {
+                    label: '取消',
+                    className: 'btn-danger btn-outline'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.ajax({
+                        url: 'deleteUser',
+                        data: {'uid' : id},
+                        dataType: "json",
+                        type: 'POST',
+                        success: function (json) {
+                            if (json.code == 1) {
+                                bootbox.hideAll();
+                                bootbox.alert({
+                                    message:json.msg,
+                                    buttons: {
+                                        ok: {
+                                            label: '确定',
+                                            className: 'btn-success'
+                                        }
+                                    },
+                                    callback: function (data) {
+                                        window.location.reload(true);
+                                    }
+                                });
+                            } else {
+                                bootbox.alert(json.msg);
+                            }
+                        }
+                    });
+                }
+            }
+        });
     }
 </script>
 {% endblock %}

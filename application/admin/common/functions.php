@@ -5,6 +5,7 @@
  * Date: 2017/11/06
  * Time: 22:41
  */
+
 if (!function_exists('random_string')) {
     /**
      * 生成随机字符串

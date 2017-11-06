@@ -6,12 +6,25 @@
 <script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
 <script>
     $(function() {
+        //用户组是否选择验证（通过checkbox选择的个数判断是否选择）
+        $('#group_check').val($("#group_checkbox_list input[type='checkbox']:checked").length);//初始化checkbox选择个数
+        $("#group_checkbox_list input[type='checkbox']").change(function() {
+            var check_num = $('#group_check').val();
+            if ($(this).prop('checked')) { //如果选中，个数加1
+                check_num++;
+                $('#group_check').val(check_num);
+            }else{//取消选中时个数减一
+                check_num--;
+                $('#group_check').val(check_num);
+            }
+        });
         //表单验证
         $("#addUserForm").validate({
+            ignore: '',
             rules: {
                 group_check: {
                     required: true,
-//                    atLeastOneChecked: true
+                    min: 1
                 },
                 username: {
                     required: true,
@@ -51,65 +64,65 @@
                 },
                 password: {
                     required: "请输入密码",
-                        minlength: "密码长度不能小于 5 个字母"
+                    minlength: "密码长度不能小于 5 个字母"
                 },
                 confirm_password: {
                     required: "请输入密码",
-                        minlength: "密码长度不能小于 5 个字母",
-                        equalTo:"两次输入密码不一致"
+                    minlength: "密码长度不能小于 5 个字母",
+                    equalTo:"两次输入密码不一致"
                 },
                 group_check: {
                     required:"请至少选择一项用户组",
+                    min: "请至少选择一项用户组"
                 }
             }
         });
-    });
-
-    $('#saveUserBtn').click(function(){
-        {% if isAdd %} var __url = 'addUser';{% else %} var __url = 'editUser';{% endif %}
-        if ($('#addUserForm').valid()) {
-            $.ajax({
-                url: __url,
-                data: $('#addUserForm').serializeArray(),
-                dataType: "json",
-                type: 'POST',
-                success: function (result) {
-                    if(result.code == 1){
-                        bootbox.hideAll();
-                        bootbox.alert({
-                            message:result.msg,
-                            buttons: {
-                                ok: {
-                                    label: '确定',
-                                    className: 'btn-success'
+        //提交按钮监听
+        $('#saveUserBtn').click(function(){
+            {% if isAdd %} var __url = 'addUser';{% else %} var __url = 'editUser';{% endif %}
+            if ($('#addUserForm').valid()) {
+                $.ajax({
+                    url: __url,
+                    data: $('#addUserForm').serializeArray(),
+                    dataType: "json",
+                    type: 'POST',
+                    success: function (result) {
+                        if(result.code == 1){
+                            bootbox.hideAll();
+                            bootbox.alert({
+                                message:result.msg,
+                                buttons: {
+                                    ok: {
+                                        label: '确定',
+                                        className: 'btn-success'
+                                    }
+                                },
+                                callback: function (rel) {
+                                    window.location.reload(true);
                                 }
-                            },
-                            callback: function (rel) {
-                                window.location.reload(true);
-                            }
-                        });
-                    }else{
-                        bootbox.alert(result.msg);
+                            });
+                        }else{
+                            bootbox.alert(result.msg);
+                        }
                     }
-                }
-            });
-        } else {
-            return;
-        }
+                });
+            } else {
+                return;
+            }
+        });
     });
 </script>
 {% endblock %}
 
 {% block body %}
-<body class="gray-bg">
-    <div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
+<div class="row">
         <div class="col-sm-12">
             <form class="form-horizontal m-t" id="addUserForm">
+                <input type="hidden" name="uid" value="{{ userInfo.id }}">
                 <div class="form-group">
                     <label class="col-sm-3 control-label">所属用户组：</label>
-                    <div class="col-sm-8 group_checkbox_list">
-                        <input name="group_check" type="text" id="group_check">
+                    <div class="col-sm-8" id="group_checkbox_list">
+                        <input name="group_check" type="hidden" id="group_check">
                         {% for group in groupList %}
                         <div class="checkbox checkbox-success checkbox-inline">
                             <input type="checkbox" id="checkbox_{{group.id}}" name="group[]" value="{{ group.id }}" {% if group.id in checkedGroupList %}checked{% endif %}>
@@ -148,6 +161,22 @@
                         <input id="confirm_password" name="confirm_password" class="form-control" type="password" {% if isAdd %} placeholder="确认密码" {% else %} placeholder="留空则不修改" {% endif %}>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">状态：</label>
+                    <div class="col-sm-8">
+                        <div class="switch">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" id="status_off" value="1" name="status" {% if userInfo.status=='1' %} checked {% endif %}>
+                                <label for="status_off">启用</label>
+                            </div>
+                            <div class="radio radio-danger radio-inline">
+                                <input type="radio" id="status_on" value="0" name="status" {% if userInfo.status=='0' %} checked {% endif %}>
+                                <label for="status_on">禁用</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
             <div class="space-20"></div>
 
@@ -161,6 +190,4 @@
             </div>
         </div>
     </div>
-</div>
-</body>
 {% endblock %}

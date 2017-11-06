@@ -8,11 +8,11 @@
 
 {% block body %}
 <body class="gray-bg">
-<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="wrapper wrapper-content  animated fadeInRight">
     <div class="row">
         <div class="ibox ">
             <div class="ibox-title">
-                <button onclick="addGroup();" class="btn btn-primary">添加组</button>
+                <button onclick="addGroup();" class="btn btn-primary btn-outline">添加组</button>
             </div>
             <div class="ibox-content">
                 <table class="table table-striped table-bordered table-hover " id="groupTable">
@@ -31,6 +31,7 @@
         </div>
     </div>
 </div>
+</body>
 {% endblock %}
 
 {% block scripts %}
@@ -51,26 +52,26 @@
                 'aoColumns':[
                     {
                         "mData": 'id',
-                        'sClass':'center',
+                        'sClass':'text-center',
                         'sWidth':'20'
                     }, {
                         "mData": 'name',
-                        'sClass':'center',
+                        'sClass':'text-center',
                         'sWidth':'60',
                         'bSortable':false
                     }, {
                         "mData": 'description',
-                        'sClass':'center',
+                        'sClass':'text-center',
                         'sWidth':'60',
                         'bSortable':false
                     }, {
                         "mData": 'status',
-                        'sClass':'center',
+                        'sClass':'text-center',
                         'sWidth':'20',
                         'bSortable':false
                     }, {
                         "mData": 'action',
-                        'sClass':'center',
+                        'sClass':'text-center',
                         'sWidth':'60',
                         'bSortable':false
                     }
@@ -85,9 +86,8 @@
                     {
                         'aTargets' : [4],
                         'mRender' : function (data, type, full) {
-                            return '<button class="btn btn-info" type="button" onclick="editGroup('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-primary" type="button" onclick="distribute('+full.id+', \''+full.name+'\');"><i class="fa fa-ban"></i>分配权限</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-danger" type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
+                            return '<button class="btn btn-info btn-outline" type="button" onclick="editGroup('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
+                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
                         }
                     }
                 ],
@@ -121,10 +121,10 @@
     //添加用户
     function addGroup() {
         $.ajax({
-            url: 'add',
+            url: 'addGroup',
             data: '',
             dataType: "html",
-            type: 'POST',
+            type: 'GET',
             success: function (tpl) {
                 var dialog = bootbox.dialog({
                     title: '添加用户组',
@@ -136,10 +136,10 @@
     //编辑用户
     function editGroup(id) {
         $.ajax({
-            url: 'edit',
-            data: {'id' : id},
+            url: 'editGroup',
+            data: {'gid' : id},
             dataType: 'html',
-            type: 'POST',
+            type: 'GET',
             success: function (tpl) {
                 var dialog = bootbox.dialog({
                     title: '编辑用户组',
@@ -150,27 +150,8 @@
     }
     //删除用户
     function deleteGroup(id) {
-        if (id == 1) {
-            bootbox.alert('超级管理员分组不可删除！');
-        }
         bootbox.confirm({
 
-        });
-    }
-
-    //分配权限
-    function distribute(id, groupName) {
-        $.ajax({
-            url: 'distribute',
-            data: {'groupId' : id},
-            dataType: "html",
-            type: 'POST',
-            success: function (tpl) {
-                var dialog = bootbox.dialog({
-                    title: '分配权限__' + groupName,
-                    message: tpl,
-                });
-            }
         });
     }
 </script>

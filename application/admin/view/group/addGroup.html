@@ -1,0 +1,114 @@
+{% extends 'public/base.html' %}
+
+{% block body %}
+<div class="row">
+        <div class="col-sm-12">
+            <form class="form-horizontal m-t" id="addGroupForm">
+                <input type="hidden" name="gid" value="{{ groupInfo.id }}"/>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">组名：</label>
+                    <div class="col-sm-8">
+                        <input id="group_name" name="group_name" class="form-control" type="text" value="{{ groupInfo.name }}" required placeholder="请填写用户组名称">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">排序：</label>
+                    <div class="col-sm-8">
+                        <input id="sort" name="sort" class="form-control" type="digits" value="{{ groupInfo.sort }}" placeholder="请填入排序数字">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">描述：</label>
+                    <div class="col-sm-8">
+                        <textarea name="description" class="form-control" placeholder="用户组描述">{{ groupInfo.description }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">状态：</label>
+                    <div class="col-sm-8">
+                        <div class="switch">
+                            <div class="radio radio-info radio-inline">
+                                <input type="radio" id="status_off" value="1" name="status" {% if groupInfo.status=='1' %} checked {% endif %}>
+                                <label for="status_off">启用</label>
+                            </div>
+                            <div class="radio radio-danger radio-inline">
+                                <input type="radio" id="status_on" value="0" name="status" {% if groupInfo.status=='0' %} checked {% endif %}>
+                                <label for="status_on">禁用</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="space-20"></div>
+
+            <div class="text-center">
+                <button class="btn btn-outline btn-info" type="button" id="saveGroupBtn">
+                    <i class="fa fa-check"></i>提交
+                </button>
+                <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+                    <i class="fa fa-times"></i>关闭
+                </button>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="__static__/hplus/js/jquery.min.js?v=2.1.4"></script>
+<script src="__static__/hplus/js/bootstrap.min.js?v=3.3.5"></script>
+<script src="__static__/hplus/js/content.min.js?v=1.0.0"></script>
+<script src="__static__/hplus/js/plugins/validate/jquery.validate.min.js"></script>
+<script src="__static__/hplus/js/plugins/validate/messages_zh.min.js"></script>
+<script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
+<script src="__static__/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script>
+    $(function() {
+        //表单验证
+        $("#addGroupForm").validate({
+            rules: {
+                group_name: {
+                    required: true,
+                },
+            },
+            messages: {
+                group_name: {
+                    required: "请填写用户组名称"
+                }
+            }
+        });
+        //提交按钮监听
+        $('#saveGroupBtn').click(function(){
+            {% if isAdd %} var __url = 'addGroup';{% else %} var __url = 'editGroup';{% endif %}
+            if ($('#addGroupForm').valid()) {
+                $.ajax({
+                    url: __url,
+                    data: $('#addGroupForm').serializeArray(),
+                    dataType: "json",
+                    type: 'POST',
+                    success: function (result) {
+                        if(result.code == 1){
+                            bootbox.hideAll();
+                            bootbox.alert({
+                                message:result.msg,
+                                buttons: {
+                                    ok: {
+                                        label: '确定',
+                                        className: 'btn-success'
+                                    }
+                                },
+                                callback: function (rel) {
+                                    window.location.reload(true);
+                                }
+                            });
+                        }else{
+                            bootbox.alert(result.msg);
+                        }
+                    }
+                });
+            } else {
+                return;
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends 'public/base.html' %}
+
+{% block body %}
+<form class="form-horizontal" id="groupEditForm">
+    <div class="row">
+        <div class="col-sm-12">
+            <p class="alert-info text-center" style="margin: -10px -15px 10px;">
+                基础信息
+            </p>
+            <div style="height: 200px; overflow-y: auto;">
+                {% for k, policyList in policies if policyList|length > 0 %}
+                <fieldset>
+                    <legend>{{ categories[k|lower] is defined ? categories[k|lower] : k|lower }}</legend>
+                    {% for policy in policyList %}
+                    <div class="col-xs-4">
+                        <input type="checkbox" name="policies[]" value="{{ policy.label }}" id="policy_{{ policy.label }}" {% if policy.label in groupInfo.policies %}checked="checked"{% endif %}/>
+                        <label for="policy_{{ policy.label }}">{{ policy.description }}</label>
+                    </div>
+                    {% endfor %}
+                </fieldset>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <hr>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <p class="alert-warning text-center" style="margin: -10px -15px 10px;">
+                权限分配
+            </p>
+
+            <div style="height: 200px; overflow-y: auto;">
+                {% for k, policyList in policies if policyList|length > 0 %}
+                <fieldset>
+                    <legend>{{ categories[k|lower] is defined ? categories[k|lower] : k|lower }}</legend>
+                    {% for policy in policyList %}
+                    <div class="col-xs-4">
+                        <input type="checkbox" name="policies[]" value="{{ policy.label }}" id="policy_{{ policy.label }}" {% if policy.label in groupInfo.policies %}checked="checked"{% endif %}/>
+                        <label for="policy_{{ policy.label }}">{{ policy.description }}</label>
+                    </div>
+                    {% endfor %}
+                </fieldset>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="text-center">
+    <button class="btn btn-outline btn-info" type="button" id="saveGroupBtn">
+        <i class="fa fa-check"></i>提交
+    </button>
+    <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+        <i class="fa fa-times"></i>关闭
+    </button>
+</div>
+{% endblock %}
