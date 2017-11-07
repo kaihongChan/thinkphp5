@@ -9,6 +9,7 @@
 namespace app\admin\controller;
 
 
+use app\admin\model\Functions;
 use app\admin\model\Group;
 use app\admin\model\User;
 
@@ -42,8 +43,11 @@ class UserController extends BaseController
         $sqlWhere = [
 //            'status' => 1,
         ];
-        $userList = User::where($sqlWhere)->limit($pageStart, $pageSize)->select();
+        $userList = User::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+            $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
+        });
         $groupList = Group::all(['status' => 1]);
+
         $groupData = [];
         foreach ($groupList as $key => $group) {
             $groupData[$group['id']] = $group['name'];
@@ -101,6 +105,7 @@ class UserController extends BaseController
             }
             exit;
         }
+
         $groupList = Group::all(['status' => 1]);
         $this->assign('groupList', $groupList);
         $this->assign('isAdd', true);

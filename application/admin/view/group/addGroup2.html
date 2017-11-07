@@ -1,15 +1,9 @@
 {% extends 'public/base.html' %}
 
-{% block header %}
-{% endblock %}
-
 {% block body %}
-<form class="form-horizontal" id="addGroupForm">
-    <div class="row">
+<div class="row">
         <div class="col-sm-12">
-            <p class="alert-info text-center" style="margin: -10px -15px 10px;">基础信息</p>
-
-            <div class="col-sm-6">
+            <form class="form-horizontal m-t" id="addGroupForm">
                 <input type="hidden" name="gid" value="{{ groupInfo.id }}"/>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">组名：</label>
@@ -23,9 +17,12 @@
                         <input id="sort" name="sort" class="form-control" type="digits" value="{{ groupInfo.sort }}" placeholder="请填入排序数字">
                     </div>
                 </div>
-            </div>
-
-            <div class="col-sm-6">
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">描述：</label>
+                    <div class="col-sm-8">
+                        <textarea name="description" class="form-control" placeholder="用户组描述">{{ groupInfo.description }}</textarea>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="col-sm-3 control-label">状态：</label>
                     <div class="col-sm-8">
@@ -41,53 +38,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">描述：</label>
-                    <div class="col-sm-8">
-                        <textarea name="description" class="form-control" placeholder="用户组描述">{{ groupInfo.description }}</textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="space-15"></div>
-    <div class="row">
-        <div class="col-sm-12">
-            <p class="alert-warning text-center" style="margin: -10px -15px 10px;">权限分配</p>
+            </form>
+            <div class="space-20"></div>
 
-            <div style="height: 220px; overflow-y: auto;" class="form-group">
-                <legend class="text-center">
-                    <input id="power_checked" name="power_checked" type="hidden">
-                </legend>
-                {% for k, v in functionData if v %}
-                <fieldset class="checkbox_block">
-                    <legend class="text-center">
-                        <a class="btn help-block m-b-none checkbox-father" data-toggle="tooltip" data-placement="right" title="" data-original-title="点击选择全部子项"><strong>{{ k }}</strong>
-                            <i class="fa fa-info-circle"></i>
-                        </a>
-                    </legend>
-                    {% for kk, vv in v %}
-                    <div class="col-xs-3 checkbox checkbox-success checkbox-inline checkbox_child" id="power_checkbox_list">
-                        <input type="checkbox" name="powers[]" value="{{ vv.identification }}" id="{{ vv.identification }}" {% if vv.identification in groupInfo.powers %} checked {% endif %}/>
-                        <label for="{{ vv.identification }}">{{ vv.name }}</label>
-                    </div>
-                    {% endfor %}
-                </fieldset>
-                <div class="space-15"></div>
-                {% endfor %}
+            <div class="text-center">
+                <button class="btn btn-outline btn-info" type="button" id="saveGroupBtn">
+                    <i class="fa fa-check"></i>提交
+                </button>
+                <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+                    <i class="fa fa-times"></i>关闭
+                </button>
             </div>
         </div>
     </div>
-</form>
-<hr >
-<div class="text-center">
-    <button class="btn btn-outline btn-info" type="button" id="saveGroupBtn">
-        <i class="fa fa-check"></i>提交
-    </button>
-    <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
-        <i class="fa fa-times"></i>关闭
-    </button>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -98,44 +61,19 @@
 <script src="__static__/hplus/js/plugins/validate/messages_zh.min.js"></script>
 <script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
 <script src="__static__/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
-<script src="__static__/hplus/js/content.min.js?v=1.0.0"></script>
 <script>
     $(function() {
-        //全选/反选
-        $('.checkbox-father').click(function () {
-            alert(123);
-        });
-        $("[data-toggle='tooltip']").tooltip();
-
-        //是否勾选验证（通过checkbox选择的个数判断是否选择）
-        $('#power_checked').val($("#power_checkbox_list input[type='checkbox']:checked").length);//初始化checkbox选择个数
-        $("#power_checkbox_list input[type='checkbox']").change(function() {
-            var check_num = $('#power_checked').val();
-            if ($(this).prop('checked')) { //如果选中，个数加1
-                check_num++;
-                $('#power_checked').val(check_num);
-            }else{//取消选中时个数减一
-                check_num--;
-                $('#power_checked').val(check_num);
-            }
-        });
         //表单验证
         $("#addGroupForm").validate({
-            ignore:'',
             rules: {
                 group_name: {
                     required: true,
                 },
-                power_checked: {
-                    required : true,
-                    min:1,
-                }
             },
             messages: {
                 group_name: {
                     required: "请填写用户组名称"
-                },
-                power_checked : "请至少勾选一个子项"
+                }
             }
         });
         //提交按钮监听

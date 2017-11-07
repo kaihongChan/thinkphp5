@@ -44,5 +44,53 @@ class User extends Base
         ];
     }
 
+    /**
+     * @param $username
+     * @param $password
+     * @param string $error 错误信息
+     * @return bool
+     */
+    public static function userLogin($username, $password, &$error = '')
+    {
+        $userInfo = self::get(['name' => $username]);
+
+        if (is_null($userInfo)) {
+            $error = '用户不存在！';
+            return false;
+        }
+
+        if ($userInfo['status'] == 0) {
+            $error = '用户已被禁用！';
+            return false;
+        }
+
+        // 校验密码
+        $password = $password . $userInfo['salt'];
+        $hash = $userInfo['password'];
+        if(!password_verify($password, $hash)) {
+            $error = '密码错误，请重新输入！';
+            return false;
+        }
+
+        //更新用户最后登录时间、ip
+        $update_data = [
+            'last_login_time' => time(),
+            'last_login_ip' => get_client_ip(),
+        ];
+        self::update($update_data, ['name' => $username]);
+        self::setCookieAndSession($userInfo);
+        return true;
+    }
+
+    /**
+     * 登录成功后设置cookie、session
+     * @param $userInfo
+     */
+    private static function setCookieAndSession($userInfo)
+    {
+        session('adm_uid', $userInfo['id']);
+        session('adm_username', $userInfo['name']);
+        cookie('adm_uid', $userInfo['id'], 3600 * 24 * 1);
+    }
 
 }

@@ -41,7 +41,10 @@ class FunctionController extends BaseController
         $sqlWhere = [
 //            'status' => 1,
         ];
-        $functionList= Functions::where($sqlWhere)->limit($pageStart, $pageSize)->select();
+
+        $functionList= Functions::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+            $query->where($sqlWhere)->limit($pageStart, $pageSize);
+        });
 
         foreach ($functionList as $key => $function) {
             $function['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$function['status']];

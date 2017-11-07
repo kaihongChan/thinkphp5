@@ -30,3 +30,35 @@ if (!function_exists('random_string')) {
         return $result;
     }
 }
+
+if (!function_exists('get_client_ip')) {
+    /**
+     * 获取客户端IP
+     */
+    function get_client_ip()
+    {
+        if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+            $cip = $_SERVER['HTTP_CLIENT_IP'];
+        } elseif (!empty($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+            $cip = $_SERVER["HTTP_X_FORWARDED_FOR"];
+        } elseif (!empty($_SERVER["REMOTE_ADDR"])) {
+            $cip = $_SERVER["REMOTE_ADDR"];
+        } else {
+            $cip = "";
+        }
+
+        return is_ip($cip) ? $cip : '';
+    }
+}
+
+if (!function_exists('is_ip')) {
+    /**
+     * 是否IP地址
+     * @param string $ip
+     * @return  boolean
+     */
+    function is_ip($ip) {
+        $filtered_data = filter_var($ip, FILTER_VALIDATE_IP);
+        return $filtered_data !== false && $filtered_data == $ip;
+    }
+}

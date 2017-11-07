@@ -9,6 +9,7 @@
 namespace app\admin\controller;
 
 
+use app\admin\model\Functions;
 use app\admin\model\Group;
 
 class GroupController extends BaseController
@@ -41,7 +42,9 @@ class GroupController extends BaseController
         //检索条件
         $sqlWhere = empty($searchKey) ? [] : [ 'id | name' => ['like', '%'.$searchKey.'%']];
 
-        $groupList = Group::where($sqlWhere)->limit($pageStart, $pageSize)->select();
+        $groupList = Group::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+            $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
+        });
 
         foreach ($groupList as $key => $group) {
             $group['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$group['status']];
@@ -61,6 +64,8 @@ class GroupController extends BaseController
     public function addGroupAction()
     {
         if ($this->request->isPost()) {
+            var_dump($_POST);
+            die;
             $data = [
                 'name' => trim(input('post.group_name')),
                 'sort' => intval(input('post.sort')),
@@ -77,8 +82,23 @@ class GroupController extends BaseController
             }
             exit;
         }
+
+        //功能分组
+        $categories = Functions::functionCategories();
+        $functionList = Functions::all(['status' => 1]);
+        $functionData = [];
+        foreach ($functionList as $key => $value) {
+            $category = strtolower($value['category']);
+            if (in_array($category, array_keys($categories))) {
+                $functionData[$categories[$category]][] = $value;
+            } else {
+                $functionData[$category][] = $value;
+            }
+        }
+
+        $this->assign('functionData', $functionData);
         $this->assign('isAdd', true);
-        echo $this->fetch('group:addGroup1');
+        echo $this->fetch('group:addGroup');
     }
 
     /**
@@ -87,9 +107,10 @@ class GroupController extends BaseController
     public function editGroupAction()
     {
         $gid = input('get.gid');
-        $groupInfo = Group::get(['id' => $gid]);
 
         if ($this->request->isPost()) {
+            var_dump($_POST);
+            die;
             $gid = intval(input('post.gid'));
             $data = [
                 'name' => trim(input('post.group_name')),
@@ -108,6 +129,29 @@ class GroupController extends BaseController
             }
             exit;
         }
+
+        //用户组信息
+        $groupInfo = Group::get(['id' => $gid]);
+        foreach ($groupInfo as $key => $group) {
+            $group['powers'] = empty($group['powers']) ? [] : json_decode($group['powers'], true);
+            $groupInfo[$key] = $group;
+        }
+
+        //功能分组
+        $categories = Functions::functionCategories();
+        $functionList = Functions::all(['status' => 1]);
+        $functionData = [];
+        foreach ($functionList as $key => $value) {
+            $category = strtolower($value['category']);
+            if (in_array($category, array_keys($categories))) {
+                $functionData[$categories[$category]][] = $value;
+            } else {
+                $functionData[$category][] = $value;
+            }
+        }
+
+        $this->assign('functionData', $functionData);
+        $this->assign('groupInfo', $groupInfo);
         $this->assign('isAdd', false);
         $this->assign('groupInfo', $groupInfo);
         echo $this->fetch('group:addGroup');
