@@ -12,4 +12,12 @@ namespace app\admin\model;
 class Menu extends Base
 {
     protected $table = 'thinkphp_menu';
+
+    /**
+     * 生成树形列表
+     */
+    public static function makeMenuTree()
+    {
+
+    }
 }

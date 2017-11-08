@@ -104,8 +104,8 @@
                     {
                         'aTargets' : [7],
                         'mRender' : function (data, type, full) {
-                            return '<button class="btn btn-info btn-outline" type="button" onclick="editFunction(\'' + full.identification + '\');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteFunction(\'' + full.identification + '\')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
+                            return '<button class="btn btn-info btn-outline" type="button" onclick="editFunction(' + full.id + ');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
+                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteFunction(' + full.id + ')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
                         }
                     }
                 ],
@@ -160,10 +160,10 @@
         });
     }
     //编辑
-    function editFunction(identification) {
+    function editFunction(id) {
         $.ajax({
             url: 'editFunction',
-            data: {'identification' : identification},
+            data: {'fid' : id},
             dataType: 'html',
             type: 'GET',
             success: function (tpl) {
@@ -176,7 +176,7 @@
     }
 
     //删除
-    function deleteFunction(identification) {
+    function deleteFunction(id) {
         bootbox.confirm({
             message: "确定删除系统功能？",
             buttons: {
@@ -193,7 +193,7 @@
                 if (result) {
                     $.ajax({
                         url: 'deleteFunction',
-                        data: {'identification' : identification},
+                        data: {'fid' : id},
                         dataType: "json",
                         type: 'POST',
                         success: function (json) {

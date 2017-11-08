@@ -64,8 +64,6 @@ class GroupController extends BaseController
     public function addGroupAction()
     {
         if ($this->request->isPost()) {
-            var_dump($_POST);
-            die;
             $data = [
                 'name' => trim(input('post.group_name')),
                 'sort' => intval(input('post.sort')),
@@ -109,8 +107,6 @@ class GroupController extends BaseController
         $gid = input('get.gid');
 
         if ($this->request->isPost()) {
-            var_dump($_POST);
-            die;
             $gid = intval(input('post.gid'));
             $data = [
                 'name' => trim(input('post.group_name')),

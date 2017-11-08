@@ -65,6 +65,32 @@ class FunctionController extends BaseController
      */
     public function addFunctionAction()
     {
+        if ($this->request->isPost()) {
+            $module = strtolower(trim(input('post.module')));
+            $controller = strtolower(trim(input('post.controller')));
+            $action = strtolower(trim(input('post.action')));
+            $data = [
+                'category' => $controller,
+                'module' => $module,
+                'controller' => $controller,
+                'action' => $action,
+                'name' => trim(input('post.function_name')),
+                'description' => trim(input('post.description')),
+                'status' => intval(input('post.status')),
+                'type' => intval(input('post.status')),
+                'add_time' => time(),
+                'update_time' => time(),
+            ];
+            $functionModel = Functions::create($data);
+
+            if ($functionModel->result) {
+                $this->success('成功添加系统功能！');
+            } else {
+                $this->error('添加系统功能失败，请重试！');
+            }
+            exit;
+        }
+        $this->assign('isAdd', true);
         echo $this->fetch('function:addFunction');
     }
 
@@ -73,6 +99,37 @@ class FunctionController extends BaseController
      */
     public function editFunctionAction()
     {
+        if ($this->request->isPost()) {
+            $id = intval(input('post.fid'));
+            $module = strtolower(trim(input('post.module')));
+            $controller = strtolower(trim(input('post.controller')));
+            $action = strtolower(trim(input('post.action')));
+            $data = [
+                'category' => $controller,
+                'module' => $module,
+                'controller' => $controller,
+                'action' => $action,
+                'name' => trim(input('post.function_name')),
+                'description' => trim(input('post.description')),
+                'status' => intval(input('post.status')),
+                'type' => intval(input('post.status')),
+                'update_time' => time(),
+            ];
+
+            $functionModel = Functions::update($data, ['id' => $id]);
+
+            if ($functionModel->result) {
+                $this->success('成功更新系统功能！');
+            } else {
+                $this->error('更新系统功能失败，请重试！');
+            }
+            exit;
+        }
+
+        $id = intval(input('get.fid'));
+        $functionInfo = Functions::get(['id' => $id]);
+        $this->assign('functionInfo', $functionInfo);
+        $this->assign('isAdd', false);
         echo $this->fetch('function:addFunction');
     }
 
@@ -81,9 +138,9 @@ class FunctionController extends BaseController
      */
     public function deleteFunctionAction()
     {
-        $identification = input('post.identification');
+        $id = input('post.fid');
 
-        $result = Functions::destroy(['identification' => $identification]);
+        $result = Functions::destroy(['id' => $id]);
 
         if($result){
             $this->success('成功删除系统功能！');
