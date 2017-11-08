@@ -88,13 +88,15 @@ class MenuController extends BaseController
     {
         if ($this->request->isPost()) {
             $menu_id = intval(input('post.menu_id'));
+            //TODO:名称与功能做判断
+            var_dump($menu_id);
+            die;
             $data = [
-                'pid' => '',
-                'title' => '',
-                'function' => '',
-                'sort' => '',
-                'status' => '',
-                'icon' => ''
+                'title' => trim(input('post.menu_name')),
+//                'function' => trim(input('post.menu_function')),
+                'sort' => intval(input('post.menu_sort', 0)),
+                'status' => intval(input('post.menu_status', 1)),
+//                'icon' => trim(input('post.menu_icon'))
             ];
             $menuModel = Menu::update($data, ['id' => $menu_id]);
             if ($menuModel->result) {
@@ -102,8 +104,7 @@ class MenuController extends BaseController
             } else {
                 $this->error('更新系统菜单失败，请重试！');
             }
-            var_dump($menu_id);
-            die;
+
         }
     }
 
@@ -112,6 +113,6 @@ class MenuController extends BaseController
      */
     public function deleteMenuAction()
     {
-
+        //TODO:删除
     }
 }
