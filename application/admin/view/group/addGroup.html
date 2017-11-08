@@ -33,11 +33,11 @@
                         <div class="col-sm-8">
                             <div class="switch">
                                 <div class="radio radio-info radio-inline">
-                                    <input type="radio" id="status_on" value="1" name="status">
+                                    <input type="radio" id="status_on" value="1" name="status" {% if groupInfo.status ==1 %} checked {% endif %}>
                                     <label for="status_on">启用</label>
                                 </div>
                                 <div class="radio radio-danger radio-inline">
-                                    <input type="radio" id="status_off" value="0" name="status">
+                                    <input type="radio" id="status_off" value="0" name="status" {% if groupInfo.status ==0 %} checked {% endif %}>
                                     <label for="status_off">禁用</label>
                                 </div>
                             </div>

@@ -173,11 +173,4 @@ class GroupController extends BaseController
         $this->error('删除用户组失败，请重试！');
     }
 
-    /**
-     * 用户组权限分配
-     */
-    public function distributeAction()
-    {
-
-    }
 }

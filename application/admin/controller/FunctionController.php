@@ -77,7 +77,7 @@ class FunctionController extends BaseController
                 'name' => trim(input('post.function_name')),
                 'description' => trim(input('post.description')),
                 'status' => intval(input('post.status')),
-                'type' => intval(input('post.status')),
+                'type' => intval(input('post.type')),
                 'add_time' => time(),
                 'update_time' => time(),
             ];
@@ -112,7 +112,7 @@ class FunctionController extends BaseController
                 'name' => trim(input('post.function_name')),
                 'description' => trim(input('post.description')),
                 'status' => intval(input('post.status')),
-                'type' => intval(input('post.status')),
+                'type' => intval(input('post.type')),
                 'update_time' => time(),
             ];
 

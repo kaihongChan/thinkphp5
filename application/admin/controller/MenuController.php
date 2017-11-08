@@ -19,15 +19,26 @@ class MenuController extends BaseController
      */
     public function indexAction()
     {
-        //TODO：菜单列表 格式：array[id=>'', name=>'', sort=>'', icon=>'', function=>'', open:true/false, children=>array[id=>'', name=>'', sort=>'', icon=>'', function=>'']]
         //菜单列表
         $sqlWhere = [];
-        Menu::all(function($query) use($sqlWhere){
+        $menuList = Menu::all(function($query) use($sqlWhere){
             $query->where($sqlWhere)->order('sort', 'ASC');
         });
+        $data = [];
+        foreach ($menuList as $record) {
+            $data[$record['id']] = [
+                'id' => intval($record['id']),
+                'pid' => intval($record['pid']),
+                'name' => $record['title'],
+                'function' => $record['function'],
+                'sort' => intval($record['sort']),
+                'ico' => $record['icon'],
+                'status' => intval($record['status'])
+            ];
+        }
         //功能分组
         $categories = Functions::functionCategories();
-        $functionList = Functions::all(['status' => 1]);
+        $functionList = Functions::all(['status' => 1, 'type' => 1]);
         $functionData = [];
         foreach ($functionList as $key => $value) {
             $category = strtolower($value['category']);
@@ -37,7 +48,10 @@ class MenuController extends BaseController
                 $functionData[$category][] = $value;
             }
         }
-        $this->assign('functionData', $functionData);
+        $this->assign([
+            'functionData' => $functionData,
+            'menuList' => array_values($data)
+        ]);
         return $this->fetch();
     }
 
@@ -88,15 +102,12 @@ class MenuController extends BaseController
     {
         if ($this->request->isPost()) {
             $menu_id = intval(input('post.menu_id'));
-            //TODO:名称与功能做判断
-            var_dump($menu_id);
-            die;
             $data = [
                 'title' => trim(input('post.menu_name')),
-//                'function' => trim(input('post.menu_function')),
+                'function' => trim(input('post.menu_function')),
                 'sort' => intval(input('post.menu_sort', 0)),
                 'status' => intval(input('post.menu_status', 1)),
-//                'icon' => trim(input('post.menu_icon'))
+                'icon' => trim(input('post.menu_icon'))
             ];
             $menuModel = Menu::update($data, ['id' => $menu_id]);
             if ($menuModel->result) {
@@ -113,6 +124,14 @@ class MenuController extends BaseController
      */
     public function deleteMenuAction()
     {
-        //TODO:删除
+        $mid = intval(input('post.id'));
+
+        $result = Menu::destroy(['id' => $mid]);
+
+        if ($result) {
+            $this->success('成功删除用户组！');
+        }
+
+        $this->error('删除用户组失败，请重试！');
     }
 }

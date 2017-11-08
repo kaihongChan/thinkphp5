@@ -163,6 +163,7 @@
                     $("#menuEditForm select[name='menu_function']").parents(".form-group").show();
                 }
 
+                $("#menuEditForm input[name='menu_icon']").val(node.ico);
                 if (node.pid == 0) {
                     $("#menuEditForm input[name='menu_icon']").parents(".form-group").show();
                 } else {
@@ -177,13 +178,18 @@
                     $("#addSubMenuBtn").hide();
                 }
 
-                $("#menuEditForm input[name='display_order']").val(node.display_order);
-                $("#menuEditForm select[name='status']").val(node.status);
+                $("#menuEditForm input[name='menu_sort']").val(node.sort);
+                if (node.status == 1) {
+                    $("#edit_status_on").attr('checked','checked');
+                } else {
+                    $("#edit_status_off").attr('checked','checked');
+                }
+
             },
             beforeRemove : function (treeId, node) {
                 zTreeObj.selectNode(node);
                 if (node.children && node.children.length > 0) {
-                    alert("请先删除所有子菜单！");
+                    bootbox.alert("请先删除所有子菜单！");
                     return false;
                 }
 
@@ -193,16 +199,32 @@
                 } else {
                     title = node.name;
                 }
-                if (confirm("确定要删除\"" + title + "\"吗？")) {
-                    return true;
-                }
+
+                bootbox.confirm({
+                    message: "确定要删除\"" + title + "\"吗？",
+                    buttons: {
+                        confirm: {
+                            label: '确认',
+                            className: 'btn-success btn-outline'
+                        },
+                        cancel: {
+                            label: '取消',
+                            className: 'btn-danger btn-outline'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            return true;
+                        }
+                    }
+                });
 
                 return false;
             },
             onRemove : function (event, treeId, node) {
                 var jqxhr = $.ajax({
                     type: 'post',
-                    url: "User/delMenu",
+                    url: "deleteMenu",
                     dataType: "json",
                     data: {"id" : node.id}
                 });
@@ -218,7 +240,7 @@
                                 }
                             },
                             callback: function (result) {
-                                $('[data-ajax-content=true]').ace_ajax('reload');
+                                window.location.reload(true);
                             }
                         });
                     }else{
@@ -237,21 +259,12 @@
                     }
                 });
                 jqxhr.fail(function(jqXHR, textStatus){
-                    alert(textStatus);
-                    $('[data-ajax-content=true]').ace_ajax('stopLoading', true);
+                    bootbox.alert(textStatus);
                 });
             }
         }
     };
-
-    var zNodes = [
-        {id : 3, name : "pid1",
-            open:true, function:'#',children:[
-            {name:"test1_1"}, {name:"test1_2"}]},
-
-        {id : 2, name:"pid0", function:'#', open:true, children:[
-            {name:"test2_1"}, {name:"test2_2"}]}
-    ]
+    var zNodes = {{ menuList is defined ? menuList|json_encode|raw : "[]" }};
 
     $(document).ready(function(){
         zTreeObj = $.fn.zTree.init($("#menu_tree"), setting, zNodes);
