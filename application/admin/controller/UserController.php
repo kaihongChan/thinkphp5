@@ -20,56 +20,51 @@ class UserController extends BaseController
      */
     public function indexAction()
     {
-        return view();
-    }
-
-    /**
-     * 获取用户分页列表
-     */
-    public function getUserListAction()
-    {
-        //前端参数传入
-        $aoData = json_decode($_POST['aoData'], TRUE);
-        foreach ($aoData as $key => $value) {
-            $pkey = $key;
-            $pval = $value;
-            $param[$pkey] = $pval;
-        }
-
-        $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
-        $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
-
-        //检索条件
-        $sqlWhere = [
-//            'status' => 1,
-        ];
-        $userList = User::all(function($query) use($sqlWhere, $pageStart, $pageSize){
-            $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
-        });
-        $groupList = Group::all(['status' => 1]);
-
-        $groupData = [];
-        foreach ($groupList as $key => $group) {
-            $groupData[$group['id']] = $group['name'];
-        }
-
-        foreach ($userList as $key => $user) {
-            $user['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$user['status']];
-            $user['belong_to'] = '';
-            $user_group = empty($user['group_list']) ? [] : json_decode($user['group_list'], true);
-            foreach ($user_group as $value){
-                if(key_exists($value, $groupData)) {
-                    $user['belong_to'] .= '<span class="label label-info">'.$groupData[$value].'</span>'. '&nbsp;';
-                }
+        if ($this->request->isPost()) {
+            //前端参数传入
+            $aoData = json_decode($_POST['aoData'], TRUE);
+            foreach ($aoData as $key => $value) {
+                $pkey = $key;
+                $pval = $value;
+                $param[$pkey] = $pval;
             }
-            $userList[$key] = $user;
+
+            $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
+            $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
+
+            //检索条件
+            $sqlWhere = [
+//            'status' => 1,
+            ];
+            $userList = User::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+                $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
+            });
+            $groupList = Group::all(['status' => 1]);
+
+            $groupData = [];
+            foreach ($groupList as $key => $group) {
+                $groupData[$group['id']] = $group['name'];
+            }
+
+            foreach ($userList as $key => $user) {
+                $user['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$user['status']];
+                $user['belong_to'] = '';
+                $user_group = empty($user['group_list']) ? [] : json_decode($user['group_list'], true);
+                foreach ($user_group as $value){
+                    if(key_exists($value, $groupData)) {
+                        $user['belong_to'] .= '<span class="label label-info">'.$groupData[$value].'</span>'. '&nbsp;';
+                    }
+                }
+                $userList[$key] = $user;
+            }
+            $userCount = User::where($sqlWhere)->count();
+            return json([
+                'iTotalDisplayRecords' => !empty($userCount) ? $userCount : 0,
+                'iTotalRecords' => $pageSize,
+                'aaData' => $userList,
+            ]);
         }
-        $userCount = User::where($sqlWhere)->count();
-        return json([
-            'iTotalDisplayRecords' => !empty($userCount) ? $userCount : 0,
-            'iTotalRecords' => $pageSize,
-            'aaData' => $userList,
-        ]);
+        return view();
     }
 
     /**

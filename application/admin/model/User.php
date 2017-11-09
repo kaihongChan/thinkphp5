@@ -135,9 +135,9 @@ class User extends Base
      */
     public static function hasPowerFunc($mca)
     {
-        $powerFuncIds = self::getPowerFunctions();
+        $powerFuncs = self::getPowerFunctions();
 
-        return in_array($mca, $powerFuncIds);
+        return in_array($mca, $powerFuncs);
     }
 
 }

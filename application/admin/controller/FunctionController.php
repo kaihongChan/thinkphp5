@@ -18,46 +18,41 @@ class FunctionController extends BaseController
      */
     public function indexAction()
     {
-        return view();
-    }
+        if ($this->request->isPost()) {
+            //前端参数传入
+            $aoData = json_decode($_POST['aoData'], TRUE);
+            foreach ($aoData as $key => $value) {
+                $pkey = $key;
+                $pval = $value;
+                $param[$pkey] = $pval;
+            }
 
-    /**
-     * 获取系统功能列表
-     */
-    public function getFunctionListAction()
-    {
-        //前端参数传入
-        $aoData = json_decode($_POST['aoData'], TRUE);
-        foreach ($aoData as $key => $value) {
-            $pkey = $key;
-            $pval = $value;
-            $param[$pkey] = $pval;
-        }
+            $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
+            $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
 
-        $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
-        $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
-
-        //检索条件
-        $sqlWhere = [
+            //检索条件
+            $sqlWhere = [
 //            'status' => 1,
-        ];
+            ];
 
-        $functionList= Functions::all(function($query) use($sqlWhere, $pageStart, $pageSize){
-            $query->where($sqlWhere)->limit($pageStart, $pageSize);
-        });
+            $functionList= Functions::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+                $query->where($sqlWhere)->limit($pageStart, $pageSize);
+            });
 
-        foreach ($functionList as $key => $function) {
-            $function['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$function['status']];
-            $function['type'] = ['<span class="label label-info">普通</span>', '<span class="label label-success">菜单</span>'][$function['type']];
-            $function['action_name'] = $function['action'];
-            $functionList[$key] = $function;
+            foreach ($functionList as $key => $function) {
+                $function['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$function['status']];
+                $function['type'] = ['<span class="label label-info">普通</span>', '<span class="label label-success">菜单</span>'][$function['type']];
+                $function['action_name'] = $function['action'];
+                $functionList[$key] = $function;
+            }
+            $functionCount = Functions::where($sqlWhere)->count();
+            return json([
+                'iTotalDisplayRecords' => !empty($functionCount) ? $functionCount : 0,
+                'iTotalRecords' => $pageSize,
+                'aaData' => $functionList,
+            ]);
         }
-        $functionCount = Functions::where($sqlWhere)->count();
-        return json([
-            'iTotalDisplayRecords' => !empty($functionCount) ? $functionCount : 0,
-            'iTotalRecords' => $pageSize,
-            'aaData' => $functionList,
-        ]);
+        return view();
     }
 
     /**

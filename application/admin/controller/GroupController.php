@@ -19,43 +19,38 @@ class GroupController extends BaseController
      */
     public function indexAction()
     {
+        if ($this->request->isPost()) {
+            //前端参数传入
+            $aoData = json_decode($_POST['aoData'],TRUE);
+            foreach ($aoData as $key => $value) {
+                $pkey = $key;
+                $pval = $value;
+                $param[$pkey] = $pval;
+            }
+
+            $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
+            $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
+            $searchKey = !empty($param['sSearch']) ? $param['sSearch'] : '';
+
+            //检索条件
+            $sqlWhere = empty($searchKey) ? [] : [ 'id | name' => ['like', '%'.$searchKey.'%']];
+
+            $groupList = Group::all(function($query) use($sqlWhere, $pageStart, $pageSize){
+                $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
+            });
+
+            foreach ($groupList as $key => $group) {
+                $group['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$group['status']];
+                $groupList[$key] = $group;
+            }
+            $groupCount = Group::where($sqlWhere)->count();
+            return json([
+                'iTotalDisplayRecords' => !empty($groupCount) ?  $groupCount : 0,
+                'iTotalRecords' => $pageSize,
+                'aaData' => $groupList,
+            ]);
+        }
         return view();
-    }
-
-    /**
-     * 获取用户组分页列表
-     */
-    public function getGroupListAction()
-    {
-        //前端参数传入
-        $aoData = json_decode($_POST['aoData'],TRUE);
-        foreach ($aoData as $key => $value) {
-            $pkey = $key;
-            $pval = $value;
-            $param[$pkey] = $pval;
-        }
-
-        $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
-        $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
-        $searchKey = !empty($param['sSearch']) ? $param['sSearch'] : '';
-
-        //检索条件
-        $sqlWhere = empty($searchKey) ? [] : [ 'id | name' => ['like', '%'.$searchKey.'%']];
-
-        $groupList = Group::all(function($query) use($sqlWhere, $pageStart, $pageSize){
-            $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
-        });
-
-        foreach ($groupList as $key => $group) {
-            $group['status'] = ['<span class="label label-warning">禁用</span>', '<span class="label label-success">启用</span>'][$group['status']];
-            $groupList[$key] = $group;
-        }
-        $groupCount = Group::where($sqlWhere)->count();
-        return json([
-            'iTotalDisplayRecords' => !empty($groupCount) ?  $groupCount : 0,
-            'iTotalRecords' => $pageSize,
-            'aaData' => $groupList,
-        ]);
     }
 
     /**

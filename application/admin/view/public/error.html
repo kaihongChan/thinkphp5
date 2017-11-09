@@ -1,0 +1,19 @@
+{% extends 'public/base.html' %}
+
+{% block body %}
+<body class="gray-bg">
+    <div class="text-center fadeInDown sa-error-container">
+        <h2 class="text-danger">错误</h2>
+        <h3 class="font-bold">您无权限访问该页面！！！</h3>
+
+        <div class="space-15"></div>
+
+        <div class="error-desc">
+            <span class="text-info">说 明:
+                <i class="fa fa-hand-o-right"></i>
+                若您已被授权访问该页面，则需要先退出登录。
+            </span>
+        </div>
+    </div>
+</body>
+{% endblock %}

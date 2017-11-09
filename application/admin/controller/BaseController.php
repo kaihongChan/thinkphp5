@@ -24,19 +24,18 @@ class BaseController extends Controller
 
         $adm_uid = session('adm_uid');
 
-//        if($adm_uid == 1) {
-//            return true;
-//        }
+        if($adm_uid == 1) {
+            return true;
+        }
 
         $module = $this->request->module();
         $controller = $this->request->controller();
         $action = $this->request->action();
 
-        $mca = sprintf('%s:%s:%s', $module, $controller, $action);
-
+        $mca = sprintf('%s:%s:%s', strtolower($module), strtolower($controller), strtolower($action));
         if (!User::hasPowerFunc($mca)) {
             ?>
-                <?php include_once THINK_PATH . "/tpl/dispatch_jump.tpl"; ?>
+                <?php echo $this->fetch('public:error');?>
             <?php
             exit;
         }
