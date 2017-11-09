@@ -20,7 +20,7 @@ class UserController extends BaseController
      */
     public function indexAction()
     {
-        return $this->fetch();
+        return view();
     }
 
     /**
@@ -65,7 +65,7 @@ class UserController extends BaseController
             $userList[$key] = $user;
         }
         $userCount = User::where($sqlWhere)->count();
-        echo json_encode([
+        return json([
             'iTotalDisplayRecords' => !empty($userCount) ? $userCount : 0,
             'iTotalRecords' => $pageSize,
             'aaData' => $userList,
@@ -173,7 +173,7 @@ class UserController extends BaseController
         $this->assign('groupList', $groupList);
         $this->assign('checkedGroupList', $checkedGroupList);
         $this->assign('userInfo', $userInfo);
-        echo $this->fetch('user:addUser');
+        return view('user:addUser');
     }
 
     /**

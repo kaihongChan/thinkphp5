@@ -28,19 +28,19 @@ class loginController extends Controller
         }
 
         if ($this->request->isPost()) {
-
             $username = input('post.username');
             $password = input('post.password');
             $error = '';
             $success = User::userLogin($username, $password, $error);
             if ($success) {
                 $this->redirect('index/index');
+                exit;
             }
             $this->assign('error', $error);
             $this->assign('username', $username);
         }
 
-        return $this->fetch();
+        return view();
     }
 
     /**

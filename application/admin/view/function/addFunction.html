@@ -43,7 +43,7 @@
                 <div class="col-sm-8">
                     <div class="switch">
                         <div class="radio radio-info radio-inline">
-                            <input type="radio" id="type_normal" value="0" name="type" {% if functionInfo.type=='0' %} checked {% endif %}>
+                            <input type="radio" id="type_normal" value="0" name="type" {% if isAdd %} checked {% endif %} {% if functionInfo.type=='0' %} checked {% endif %}>
                             <label for="type_normal">普通</label>
                         </div>
                         <div class="radio radio-danger radio-inline">
@@ -58,7 +58,7 @@
                 <div class="col-sm-8">
                     <div class="switch">
                         <div class="radio radio-info radio-inline">
-                            <input type="radio" id="status_on" value="1" name="status" {% if functionInfo.status=='1' %} checked {% endif %}>
+                            <input type="radio" id="status_on" value="1" name="status" {% if isAdd %} checked {% endif %} {% if functionInfo.status=='1' %} checked {% endif %}>
                             <label for="status_on">启用</label>
                         </div>
                         <div class="radio radio-danger radio-inline">

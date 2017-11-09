@@ -47,7 +47,7 @@
                     <div class="logo-element">H+
                     </div>
                 </li>
-
+                {% for k, v in navigation %}
                 <li>
                     <a href="#">
                         <i class="fa fa-home"></i>
@@ -68,7 +68,28 @@
                             <a class="J_menuItem" href="/admin/menu/index">系统菜单</a>
                         </li>
                     </ul>
-
+                </li>
+                {% endfor %}
+                <li>
+                    <a href="#">
+                        <i class="fa fa-home"></i>
+                        <span class="nav-label">系统设置</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/admin/user/index">系统用户</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/group/index">用户组</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/function/index">系统功能</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/menu/index">系统菜单</a>
+                        </li>
+                    </ul>
                 </li>
 
             </ul>

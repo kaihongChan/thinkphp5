@@ -18,7 +18,7 @@ class FunctionController extends BaseController
      */
     public function indexAction()
     {
-        return $this->fetch();
+        return view();
     }
 
     /**
@@ -53,7 +53,7 @@ class FunctionController extends BaseController
             $functionList[$key] = $function;
         }
         $functionCount = Functions::where($sqlWhere)->count();
-        echo json_encode([
+        return json([
             'iTotalDisplayRecords' => !empty($functionCount) ? $functionCount : 0,
             'iTotalRecords' => $pageSize,
             'aaData' => $functionList,
@@ -91,7 +91,7 @@ class FunctionController extends BaseController
             exit;
         }
         $this->assign('isAdd', true);
-        echo $this->fetch('function:addFunction');
+        return view('function:addFunction');
     }
 
     /**
@@ -130,7 +130,7 @@ class FunctionController extends BaseController
         $functionInfo = Functions::get(['id' => $id]);
         $this->assign('functionInfo', $functionInfo);
         $this->assign('isAdd', false);
-        echo $this->fetch('function:addFunction');
+        return view('function:addFunction');
     }
 
     /**

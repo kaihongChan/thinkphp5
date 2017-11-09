@@ -17,7 +17,7 @@ class IndexController extends BaseController
     public function indexAction()
     {
         $this->assign('test', 'what the fuck!');
-        return $this->fetch();
+        return view();
     }
 
     /**
@@ -25,7 +25,8 @@ class IndexController extends BaseController
      */
     public function contentAction()
     {
+        var_dump(session('adm_power_func'));
         $this->assign('test', 'what the fuck!');
-        return $this->fetch();
+        return view();
     }
 }

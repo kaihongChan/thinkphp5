@@ -88,9 +88,56 @@ class User extends Base
      */
     private static function setCookieAndSession($userInfo)
     {
+        $userGroup = json_decode($userInfo['group_list'], true);
+        $userGroups = Group::all([ 'id' => ['IN', $userGroup], 'status' => 1]);//用户所有用户组
+        $tempArr = [];
+        foreach ($userGroups as $key => $uGroup) {
+            $tempArr = array_merge($tempArr, json_decode($uGroup['powers'], true));
+        }
+        $userPowerIds = array_unique($tempArr);
+
+        $functionList = Functions::all(['id' => ['IN', $userPowerIds], 'status' => 1]);
+        $powerFuncIds = [];
+        $powerFuncList = [];
+        foreach ($functionList as $fkey => $function) {
+            $powerFuncIds[] = $function['id'];
+            $powerFuncList[] = sprintf('%s:%s:%s', $function['module'], $function['controller'], $function['action']);
+        }
+        $allMenuList = Menu::all(['status' => 1]);
+        $powerMenuList = [];
+        foreach ($allMenuList as $mkey => $allMenu) {
+            if ($allMenu['function'] == '#' || in_array($allMenu['function'], $powerFuncIds)) {
+                $powerMenuList[$mkey] = $allMenu;
+            } else {
+                continue;
+            }
+        }
+        //设置会话
+        session('adm_power_menu', $powerMenuList);
+        session('adm_power_func', $powerFuncList);
         session('adm_uid', $userInfo['id']);
         session('adm_username', $userInfo['name']);
         cookie('adm_uid', $userInfo['id'], 3600 * 24 * 1);
+    }
+
+    /**
+     * 获取用户有权限的功能列表（session）
+     * @return mixed
+     */
+    private static function getPowerFunctions()
+    {
+        return session('adm_power_func');
+    }
+
+    /**
+     * @param $mca module:controller:action
+     * @return bool
+     */
+    public static function hasPowerFunc($mca)
+    {
+        $powerFuncIds = self::getPowerFunctions();
+
+        return in_array($mca, $powerFuncIds);
     }
 
 }

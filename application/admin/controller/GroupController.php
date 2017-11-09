@@ -19,7 +19,7 @@ class GroupController extends BaseController
      */
     public function indexAction()
     {
-        return $this->fetch();
+        return view();
     }
 
     /**
@@ -51,7 +51,7 @@ class GroupController extends BaseController
             $groupList[$key] = $group;
         }
         $groupCount = Group::where($sqlWhere)->count();
-        echo json_encode([
+        return json([
             'iTotalDisplayRecords' => !empty($groupCount) ?  $groupCount : 0,
             'iTotalRecords' => $pageSize,
             'aaData' => $groupList,
@@ -64,11 +64,13 @@ class GroupController extends BaseController
     public function addGroupAction()
     {
         if ($this->request->isPost()) {
+            $powers = $_POST['powers'] ? $_POST['powers'] : [];
             $data = [
                 'name' => trim(input('post.group_name')),
                 'sort' => intval(input('post.sort')),
                 'description' => trim(input('post.description')),
                 'status' => intval(input('post.status')),
+                'powers' => json_encode($powers, JSON_UNESCAPED_UNICODE),
                 'add_time' => time(),
             ];
             $groupModel = Group::create($data);
@@ -96,7 +98,7 @@ class GroupController extends BaseController
 
         $this->assign('functionData', $functionData);
         $this->assign('isAdd', true);
-        echo $this->fetch('group:addGroup');
+        return view('group:addGroup');
     }
 
     /**
@@ -107,12 +109,14 @@ class GroupController extends BaseController
         $gid = input('get.gid');
 
         if ($this->request->isPost()) {
+            $powers = $_POST['powers'] ? $_POST['powers'] : [];
             $gid = intval(input('post.gid'));
             $data = [
                 'name' => trim(input('post.group_name')),
                 'sort' => intval(input('post.sort')),
                 'description' => trim(input('post.description')),
                 'status' => intval(input('post.status')),
+                'powers' => json_encode($powers, JSON_UNESCAPED_UNICODE),
                 'update_time' => time(),
             ];
 
@@ -150,7 +154,7 @@ class GroupController extends BaseController
         $this->assign('groupInfo', $groupInfo);
         $this->assign('isAdd', false);
         $this->assign('groupInfo', $groupInfo);
-        echo $this->fetch('group:addGroup');
+        return view('group:addGroup');
     }
 
     /**

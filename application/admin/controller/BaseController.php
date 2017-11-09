@@ -32,11 +32,12 @@ class BaseController extends Controller
         $controller = $this->request->controller();
         $action = $this->request->action();
 
-//        $auth = new Auth();
-//        $result = $auth->check($module.'/'.$controller.'/'.$action, $adm_uid);
-//        if(!$result) {
-//            $this->error('你没有该操作权限！');
-//        }
+        $mca = sprintf('%s:%s:%s', $module, $controller, $action);
+
+        if (!User::hasPowerFunc($mca)) {
+            echo '你没有该操作权限！';
+            exit;
+        }
     }
 
     protected $needLogin = true;

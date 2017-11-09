@@ -33,11 +33,11 @@
                         <div class="col-sm-8">
                             <div class="switch">
                                 <div class="radio radio-info radio-inline">
-                                    <input type="radio" id="status_on" value="1" name="status" {% if groupInfo.status ==1 %} checked {% endif %}>
+                                    <input type="radio" id="status_on" value="1" name="status" {% if isAdd %} checked {% endif %} {% if groupInfo.status =='1' %} checked {% endif %}>
                                     <label for="status_on">启用</label>
                                 </div>
                                 <div class="radio radio-danger radio-inline">
-                                    <input type="radio" id="status_off" value="0" name="status" {% if groupInfo.status ==0 %} checked {% endif %}>
+                                    <input type="radio" id="status_off" value="0" name="status" {% if groupInfo.status =='0' %} checked {% endif %}>
                                     <label for="status_off">禁用</label>
                                 </div>
                             </div>
@@ -64,12 +64,12 @@
                     {% for k, v in functionData if v %}
                     <fieldset class="checkbox_block">
                         <legend class="text-center">
-                            <a class="btn help-block m-b-none checkbox-father" data-toggle="tooltip" data-placement="right" title="" data-original-title="点击选择全部子项"><strong>{{ k }}</strong>
+                            <a class="btn help-block m-b-none checkbox-father" data-toggle="tooltip" data-placement="right" title="" data-original-title="点击选择全部子项或取消"><strong>{{ k }}</strong>
                                 <i class="fa fa-info-circle"></i>
                             </a>
                         </legend>
                         {% for kk, vv in v %}
-                        <div class="col-xs-3 checkbox checkbox-success checkbox-inline checkbox_child" id="power_checkbox_list">
+                        <div class="col-xs-3 checkbox checkbox-success checkbox-inline checkbox_child">
                             <input type="checkbox" name="powers[]" value="{{ vv.id }}" id="{{ vv.id }}" {% if vv.id in groupInfo.powers %} checked {% endif %}/>
                             <label for="{{ vv.id }}">{{ vv.name }}</label>
                         </div>
@@ -107,13 +107,26 @@
     $(function() {
         //全选/反选
         $('.checkbox-father').click(function () {
-            alert(123);
+//            alert($(this).parents('.checkbox_block').find('.checkbox_child').attr('class'));
+            var checkbox_length = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']:checked").length;
+            if (checkbox_length) {
+                $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").prop('checked', false);
+                checkbox_length = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").length;
+                var checkedCount = $('#power_checked').val();
+                $('#power_checked').val(parseInt(checkedCount)-parseInt(checkbox_length));
+            } else {
+                $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").prop('checked', true);
+                checkbox_length = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").length;
+                var checkedCount = $('#power_checked').val();
+                $('#power_checked').val(parseInt(checkedCount) + parseInt(checkbox_length));
+            }
         });
         $("[data-toggle='tooltip']").tooltip();
 
         //是否勾选验证（通过checkbox选择的个数判断是否选择）
         $('#power_checked').val($("#power_checkbox_list input[type='checkbox']:checked").length);//初始化checkbox选择个数
-        $("#power_checkbox_list input[type='checkbox']").change(function() {
+
+        $(".checkbox_child input[type='checkbox']").change(function() {
             var check_num = $('#power_checked').val();
             if ($(this).prop('checked')) { //如果选中，个数加1
                 check_num++;
@@ -140,7 +153,8 @@
                     required: "请填写用户组名称"
                 },
                 power_checked : {
-                    required: "请至少勾选一个子项"
+                    required: "请至少勾选一个子项",
+                    min : "请至少勾选一个子项"
                 }
             }
         });

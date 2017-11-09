@@ -52,7 +52,7 @@ class MenuController extends BaseController
             'functionData' => $functionData,
             'menuList' => array_values($data)
         ]);
-        return $this->fetch();
+        return view();
     }
 
     /**
@@ -67,7 +67,9 @@ class MenuController extends BaseController
                 'function' => trim(input('post.menu_function')),
                 'sort' => intval(input('post.menu_sort', 0)),
                 'status' => intval(input('post.menu_status', 1)),
-                'icon' => trim(input('post.menu_icon'))
+                'icon' => trim(input('post.menu_icon')),
+                'add_time' => time(),
+                'update_time' => time()
             ];
             $menuModel = Menu::create($data);
             if ($menuModel->result) {
@@ -92,7 +94,7 @@ class MenuController extends BaseController
         $this->assign('isAdd', true);
         $this->assign('pid', $pid);
         $this->assign('functionData', $functionData);
-        echo $this->fetch('menu:addMenu');
+        return view('menu:addMenu');
     }
 
     /**
@@ -107,7 +109,8 @@ class MenuController extends BaseController
                 'function' => trim(input('post.menu_function')),
                 'sort' => intval(input('post.menu_sort', 0)),
                 'status' => intval(input('post.menu_status', 1)),
-                'icon' => trim(input('post.menu_icon'))
+                'icon' => trim(input('post.menu_icon')),
+                'update_time' => time()
             ];
             $menuModel = Menu::update($data, ['id' => $menu_id]);
             if ($menuModel->result) {
