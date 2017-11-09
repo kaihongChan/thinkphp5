@@ -24,9 +24,9 @@ class BaseController extends Controller
 
         $adm_uid = session('adm_uid');
 
-        if($adm_uid == 1) {
-            return true;
-        }
+//        if($adm_uid == 1) {
+//            return true;
+//        }
 
         $module = $this->request->module();
         $controller = $this->request->controller();
@@ -35,7 +35,9 @@ class BaseController extends Controller
         $mca = sprintf('%s:%s:%s', $module, $controller, $action);
 
         if (!User::hasPowerFunc($mca)) {
-            echo '你没有该操作权限！';
+            ?>
+                <?php include_once THINK_PATH . "/tpl/dispatch_jump.tpl"; ?>
+            <?php
             exit;
         }
     }
