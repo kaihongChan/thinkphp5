@@ -95,10 +95,10 @@
                     }
                 ],
                 'fnServerParams' : function (aoData) {
-                    var elememts = getElements('#functionSearchForm');
-                    $.each(elememts, function(key, val) {
-                        aoData.push( { "name": key, "value": val } );
-                    });
+//                    var elememts = getElements('#functionSearchForm');
+//                    $.each(elememts, function(key, val) {
+//                        aoData.push( { "name": key, "value": val } );
+//                    });
                 },
                 'aoColumnDefs' : [
                     {
@@ -135,15 +135,15 @@
         );
     });
     //获取表单参数
-    function getElements(formId) {
-        var elements = {};
-        var data = $(formId).serializeArray();
-        $.each(data, function() {
-            elements[this.name] = this.value;
-        });
-
-        return elements;
-    }
+//    function getElements(formId) {
+//        var elements = {};
+//        var data = $(formId).serializeArray();
+//        $.each(data, function() {
+//            elements[this.name] = this.value;
+//        });
+//
+//        return elements;
+//    }
     //添加
     function addFunction() {
         $.ajax({

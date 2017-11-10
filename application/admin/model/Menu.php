@@ -15,12 +15,13 @@ class Menu extends Base
 
     /**
      * 生成树形列表
+     * @param $menuList
+     * @param $pid
+     * @return array
      */
-    public static function makeMenuTree()
+    public static function makeMenuTree($menuList, $pid = 0)
     {
-        $menuList = self::all();
-        $pid = 0;
-        $tree = array();
+        $tree = [];
         foreach ($menuList as $key => $menu) {
             if($menu['pid'] == $pid) {        //父亲找到儿子
                 $menu['pid'] = self::makeMenuTree($menuList, $menu['id']);

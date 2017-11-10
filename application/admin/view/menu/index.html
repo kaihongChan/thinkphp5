@@ -3,6 +3,7 @@
 {% block header %}
 <link rel="stylesheet" href="__static__/zTree/css/metroStyle/metroStyle.css" />
 <link href="__static__/hplus/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+<link href="__static__/hplus/css/plugins/sweetalert/sweetalert.css">
 <link href="__static__/hplus/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
 {% endblock %}
 
@@ -171,7 +172,6 @@
                 }
 
                 if (node.pid == 0 && "#" == node.function) {
-//                    $("#addSubMenu").attr("data-param", "{'pid':'" + node.id + "'}")
                 $("#addSubMenuBtn").attr('onclick','addMenu(' + node.id +')');
                 $("#addSubMenuBtn").show();
                 } else {
@@ -200,24 +200,9 @@
                     title = node.name;
                 }
 
-                bootbox.confirm({
-                    message: "确定要删除\"" + title + "\"吗？",
-                    buttons: {
-                        confirm: {
-                            label: '确认',
-                            className: 'btn-success btn-outline'
-                        },
-                        cancel: {
-                            label: '取消',
-                            className: 'btn-danger btn-outline'
-                        }
-                    },
-                    callback: function (result) {
-                        if (result) {
-                            return true;
-                        }
-                    }
-                });
+                if (confirm("确定要删除\"" + title + "\"吗？")) {
+                    return true;
+                }
 
                 return false;
             },

@@ -20,6 +20,7 @@ class Functions extends Base
     public static function functionCategories()
     {
         return [
+            'index' => '系统主页',
             'user' => '用户',
             'group' => '用户组',
             'function' => '系统功能',

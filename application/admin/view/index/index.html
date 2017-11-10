@@ -22,76 +22,49 @@
         <div class="sidebar-collapse">
             <ul class="nav" id="side-menu">
                 <li class="nav-header">
-                    <div class="dropdown profile-element">
+                    <div class="dropdown profile-element text-center">
                         <span><img alt="image" class="img-circle" src="__static__/hplus/img/profile_small.jpg" /></span>
                         <a data-toggle="dropdown" class="dropdown-toggle" href="#">
-                                <span class="clear">
-                               <span class="block m-t-xs"><strong class="font-bold">Beaut-zihan</strong></span>
-                                <span class="text-muted text-xs block">超级管理员<b class="caret"></b></span>
-                                </span>
+                            <span class="clear">
+                                <span class="block m-t-xs"><strong class="font-bold">{{ adm_name }}</strong></span>
+                                <span class="text-muted text-xs block">{{ adm_group }}<b class="caret"></b></span>
+                            </span>
                         </a>
                         <ul class="dropdown-menu animated fadeInRight m-t-xs">
-                            <li><a class="J_menuItem" href="form_avatar.html">修改头像</a>
+                            <li>
+                                <a class="J_menuItem" href="form_avatar.html">修改头像</a>
                             </li>
-                            <li><a class="J_menuItem" href="profile.html">个人资料</a>
+                            <li>
+                                <a class="J_menuItem" href="profile.html">个人资料</a>
                             </li>
-                            <li><a class="J_menuItem" href="contacts.html">联系我们</a>
-                            </li>
-                            <li><a class="J_menuItem" href="mailbox.html">信箱</a>
+                            <li>
+                                <a class="J_menuItem" href="contacts.html">联系我们</a>
                             </li>
                             <li class="divider"></li>
-                            <li><a href="/admin/login/logout">安全退出</a>
+                            <li>
+                                <a href="/admin/login/logout">安全退出</a>
                             </li>
                         </ul>
                     </div>
                     <div class="logo-element">H+
                     </div>
                 </li>
-                {% for k, v in navigation %}
+                {% for firstLevel in navigation %}
                 <li>
-                    <a href="#">
-                        <i class="fa fa-home"></i>
-                        <span class="nav-label">系统设置</span>
+                    <a href="{{ firstLevel.mca }}">
+                        <i class="fa {{ firstLevel.icon }}"></i>
+                        <span class="nav-label">{{ firstLevel.title }}</span>
                         <span class="fa arrow"></span>
                     </a>
                     <ul class="nav nav-second-level">
+                        {% for secondLevel in firstLevel.pid %}
                         <li>
-                            <a class="J_menuItem" href="/admin/user/index">系统用户</a>
+                            <a class="J_menuItem" href="{{ secondLevel.mca }}">{{ secondLevel.title }}</a>
                         </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/group/index">用户组</a>
-                        </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/function/index">系统功能</a>
-                        </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/menu/index">系统菜单</a>
-                        </li>
+                        {% endfor %}
                     </ul>
                 </li>
                 {% endfor %}
-                <li>
-                    <a href="#">
-                        <i class="fa fa-home"></i>
-                        <span class="nav-label">系统设置</span>
-                        <span class="fa arrow"></span>
-                    </a>
-                    <ul class="nav nav-second-level">
-                        <li>
-                            <a class="J_menuItem" href="/admin/user/index">系统用户</a>
-                        </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/group/index">用户组</a>
-                        </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/function/index">系统功能</a>
-                        </li>
-                        <li>
-                            <a class="J_menuItem" href="/admin/menu/index">系统菜单</a>
-                        </li>
-                    </ul>
-                </li>
-
             </ul>
         </div>
     </nav>
@@ -243,8 +216,9 @@
         </div>
     </div>
     <!--右侧边栏结束-->
+
     <!--mini聊天窗口开始-->
-    <div class="small-chat-box fadeInRight animated">
+    {#<div class="small-chat-box fadeInRight animated">
 
         <div class="heading" draggable="true">
             <small class="chat-date pull-right">
@@ -334,7 +308,7 @@
             <i class="fa fa-comments"></i>
 
         </a>
-    </div>
+    </div>#}
 </div>
 
 </body>

@@ -9,6 +9,9 @@
 namespace app\admin\controller;
 
 
+use app\admin\model\Menu;
+use app\admin\model\User;
+
 class IndexController extends BaseController
 {
     /**
@@ -16,7 +19,13 @@ class IndexController extends BaseController
      */
     public function indexAction()
     {
-        $this->assign('test', 'what the fuck!');
+        $menuList = User::getPowerMenuList();
+        $navigation = Menu::makeMenuTree($menuList);
+        $this->assign([
+            'navigation' => $navigation,
+            'adm_name' => session('adm_username'),
+            'adm_group' => session('adm_group'),
+        ]);
         return view();
     }
 
@@ -25,8 +34,9 @@ class IndexController extends BaseController
      */
     public function contentAction()
     {
-        var_dump(session('adm_power_func'));
-        $this->assign('test', 'what the fuck!');
+        $menuList = User::getPowerMenuList();
+        $navigation = Menu::makeMenuTree($menuList);
+        dump($navigation);
         return view();
     }
 }

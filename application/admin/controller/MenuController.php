@@ -61,6 +61,7 @@ class MenuController extends BaseController
     public function addMenuAction()
     {
         if ($this->request->isPost()) {
+
             $data = [
                 'pid' => intval(input('post.pid', 0)),
                 'title' => trim(input('post.menu_name')),
@@ -128,6 +129,8 @@ class MenuController extends BaseController
     public function deleteMenuAction()
     {
         $mid = intval(input('post.id'));
+        var_dump($mid);
+        die;
 
         $result = Menu::destroy(['id' => $mid]);
 

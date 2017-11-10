@@ -89,34 +89,46 @@ class User extends Base
     private static function setCookieAndSession($userInfo)
     {
         $userGroup = json_decode($userInfo['group_list'], true);
-        $userGroups = Group::all([ 'id' => ['IN', $userGroup], 'status' => 1]);//用户所有用户组
+        //用户所有用户组
+        $userGroups = Group::all([ 'id' => ['IN', $userGroup], 'status' => 1]);
         $tempArr = [];
+        $groupNameStr = '';
         foreach ($userGroups as $key => $uGroup) {
-            $tempArr = array_merge($tempArr, json_decode($uGroup['powers'], true));
+            $tempArr = array_merge($tempArr, json_decode($uGroup['powers'], true));//合并用户组权限
+            $groupNameStr .= $uGroup['name'].',';
         }
         $userPowerIds = array_unique($tempArr);
-
+        //获取用户组权限
         $functionList = Functions::all(['id' => ['IN', $userPowerIds], 'status' => 1]);
-        $powerFuncIds = [];
+        $powerFuncMca = [];
         $powerFuncList = [];
         foreach ($functionList as $fkey => $function) {
-            $powerFuncIds[] = $function['id'];
-            $powerFuncList[] = sprintf('%s:%s:%s', $function['module'], $function['controller'], $function['action']);
+            $powerFuncMca[$function['id']] = strtolower(sprintf('/%s/%s/%s',
+                $function['module'], $function['controller'], $function['action']));
+
+            $powerFuncList[$function['id']] = strtolower(sprintf('%s:%s:%s',
+                $function['module'], $function['controller'], $function['action']));
         }
+        //获取菜单项
         $allMenuList = Menu::all(['status' => 1]);
         $powerMenuList = [];
+        //过滤掉没有权限的菜单项
         foreach ($allMenuList as $mkey => $allMenu) {
-            if ($allMenu['function'] == '#' || in_array($allMenu['function'], $powerFuncIds)) {
-                $powerMenuList[$mkey] = $allMenu;
+            if ($allMenu['function'] == '#' && $allMenu['pid'] == 0) {
+                $allMenu['mca'] = '#';
+            } elseif (in_array($allMenu['function'], array_keys($powerFuncMca))) {
+                $allMenu['mca'] = $powerFuncMca[$allMenu['function']];
             } else {
                 continue;
             }
+            $powerMenuList[$allMenu['id']] = $allMenu->toArray();
         }
         //设置会话
         session('adm_power_menu', $powerMenuList);
         session('adm_power_func', $powerFuncList);
         session('adm_uid', $userInfo['id']);
         session('adm_username', $userInfo['name']);
+        session('adm_group', substr($groupNameStr, 0, -1));
         cookie('adm_uid', $userInfo['id'], 3600 * 24 * 1);
     }
 
@@ -139,5 +151,14 @@ class User extends Base
 
         return in_array($mca, $powerFuncs);
     }
+
+    /**
+     * 获取权限菜单
+     */
+    public static function getPowerMenuList()
+    {
+        return session('adm_power_menu');
+    }
+
 
 }
