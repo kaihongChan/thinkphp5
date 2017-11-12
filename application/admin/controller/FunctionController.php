@@ -29,11 +29,11 @@ class FunctionController extends BaseController
 
             $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
             $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
+            $searchKey = $param['sSearch'];
 
             //检索条件
-            $sqlWhere = [
-//            'status' => 1,
-            ];
+            $sqlWhere = [];
+            empty($searchKey) ? $sqlWhere : $sqlWhere['controller | action'] = ['like', "%$searchKey%"];
 
             $functionList= Functions::all(function($query) use($sqlWhere, $pageStart, $pageSize){
                 $query->where($sqlWhere)->limit($pageStart, $pageSize);
@@ -61,10 +61,11 @@ class FunctionController extends BaseController
     public function addFunctionAction()
     {
         if ($this->request->isPost()) {
-            $module = strtolower(trim(input('post.module')));
+            $module = self::MODULE;
             $controller = strtolower(trim(input('post.controller')));
             $action = strtolower(trim(input('post.action')));
             $data = [
+                'identifier' => strtolower(sprintf('%s:%s:%s', $module, $controller, $action)),
                 'category' => $controller,
                 'module' => $module,
                 'controller' => $controller,
@@ -85,7 +86,13 @@ class FunctionController extends BaseController
             }
             exit;
         }
-        $this->assign('isAdd', true);
+
+        $controllerList = Functions::filterControllerNameList();
+        $this->assign([
+            'isAdd' => true,
+            'controllerList' => $controllerList
+
+        ]);
         return view('function:addFunction');
     }
 
@@ -96,10 +103,11 @@ class FunctionController extends BaseController
     {
         if ($this->request->isPost()) {
             $id = intval(input('post.fid'));
-            $module = strtolower(trim(input('post.module')));
+            $module = self::MODULE;
             $controller = strtolower(trim(input('post.controller')));
             $action = strtolower(trim(input('post.action')));
             $data = [
+                'identifier' => strtolower(sprintf('%s:%s:%s', $module, $controller, $action)),
                 'category' => $controller,
                 'module' => $module,
                 'controller' => $controller,
@@ -123,8 +131,14 @@ class FunctionController extends BaseController
 
         $id = intval(input('get.fid'));
         $functionInfo = Functions::get(['id' => $id]);
-        $this->assign('functionInfo', $functionInfo);
-        $this->assign('isAdd', false);
+        $controllerList = Functions::filterControllerNameList();
+        $actionList = Functions::getFunctionListByController($functionInfo['controller']);
+        $this->assign([
+            'controllerList' => $controllerList,
+            'actionList' => $actionList,
+            'functionInfo' => $functionInfo,
+            'isAdd' => false
+        ]);
         return view('function:addFunction');
     }
 
@@ -142,5 +156,44 @@ class FunctionController extends BaseController
         }
 
         $this->error('删除系统功能失败，请重试！');
+    }
+
+    /**
+     * 通过controller获取action列表
+     */
+    public function getActionByControllerAction()
+    {
+        $controller = input('post.controller');
+        $functionList = Functions::getFunctionListByController($controller);
+
+        if($functionList){
+            $this->success('', '', $functionList);
+        }
+
+        $this->error('获取方法列表失败，请重试！');
+    }
+
+    /**
+     * identifier
+     * 验证是否重复添加
+     */
+    public function checkFunctionAction()
+    {
+        $module = self::MODULE;
+        $controller = trim(input('post.controller'));
+        $action = trim(input('post.action'));
+        $fid = intval(input('post.fid'));
+
+        $identifier = strtolower(sprintf('%s:%s:%s', $module, $controller, $action));
+
+        $newInfo = Functions::get(['identifier' => $identifier]);
+        $oldInfo = Functions::get(['id' => $fid]);
+
+        if (!is_null($newInfo) && $newInfo['id'] != $oldInfo['id']) {
+            return true;
+        }
+
+        return false;
+
     }
 }

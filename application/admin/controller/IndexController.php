@@ -9,6 +9,7 @@
 namespace app\admin\controller;
 
 
+use app\admin\model\Functions;
 use app\admin\model\Menu;
 use app\admin\model\User;
 

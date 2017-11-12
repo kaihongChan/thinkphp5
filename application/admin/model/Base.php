@@ -13,6 +13,9 @@ use think\Model;
 
 class Base extends Model
 {
+    //程序模块
+    const MODULE = 'admin';
+
     //操作结果
     public $result = null;
 

@@ -14,6 +14,8 @@ use think\Controller;
 
 class BaseController extends Controller
 {
+    CONST MODULE = 'admin';
+
     public function _initialize()
     {
         $isLogined = User::isLogined();

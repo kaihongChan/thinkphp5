@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-sm-12">
         <form class="form-horizontal m-t" id="addUserForm">
-            <input type="hidden" name="uid" value="{{ userInfo.id }}">
+            <input type="hidden" id="uid" name="uid" value="{{ userInfo.id }}">
             <div class="form-group">
                 <label class="col-sm-3 control-label">所属用户组：</label>
                 <div class="col-sm-8" id="group_checkbox_list">
@@ -107,23 +107,24 @@ $("#addUserForm").validate({
         username: {
             required: true,
             //异步验证 开始
-            {% if isAdd %}
             remote: {
                 url: "/admin/user/checkUser",//发送请求的url地址
                     type: "post", //请求方式
                     dataType: "json",//接收的数据类型
                     data: {
-                    username: function () {
-                        return $("#username").val();
-                    }
-                },
+                        username: function () {
+                            return $("#username").val();
+                        },
+                        uid : function () {
+                            return $('#uid').val();
+                        }
+                    },
                 dataFilter: function (json) { //过滤返回结果
                     if (json == 'true') return false;  //false代表用户名已经存在
                     else return true; //true代表用户名还未存在
                 }
             }
             //异步验证 结束
-            {% endif %}
         },
         password: {
             {% if isAdd %}required:true,{% endif %}

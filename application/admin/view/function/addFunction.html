@@ -7,37 +7,54 @@
 <div class="row">
     <div class="col-sm-12">
         <form class="form-horizontal m-t" id="addFunctionsForm">
-            <input type="hidden" name="fid" value="{{ functionInfo.id }}"/>
-            <div class="form-group">
-                <label class="col-sm-3 control-label">模块：</label>
-                <div class="col-sm-8">
-                    <input id="module" name="module" class="form-control" type="text" value="{{ functionInfo.module }}" required placeholder="模块名称">
-                </div>
-            </div>
+            <input type="hidden" id="fid" name="fid" value="{{ functionInfo.id }}"/>
+            <!--<div class="form-group">-->
+                <!--<label class="col-sm-3 control-label">模块：</label>-->
+                <!--<div class="col-sm-8">-->
+                    <!--<input id="module" name="module" class="form-control" type="text" value="{{ functionInfo.module }}" required placeholder="模块名称">-->
+                <!--</div>-->
+            <!--</div>-->
             <div class="form-group">
                 <label class="col-sm-3 control-label">控制器：</label>
+
                 <div class="col-sm-8">
-                    <input id="controller" name="controller" class="form-control" type="text" value="{{ functionInfo.controller }}" required placeholder="控制器">
+                    <!--<input id="controller" name="controller" class="form-control" type="text" value="{{ functionInfo.controller }}" required placeholder="控制器">-->
+                    <select id="controller" name="controller" class="form-control">
+                        <option value="">--请选择--</option>
+                        {% for controller in controllerList %}
+                        <option value="{{ controller }}" {% if functionInfo.controller == controller %} selected {% endif %}>{{ controller }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">方法：</label>
                 <div class="col-sm-8">
-                    <input id="action" name="action" class="form-control" type="text" value="{{ functionInfo.action }}" required placeholder="方法">
+                    <!--<input id="action" name="action" class="form-control" type="text" value="{{ functionInfo.action }}" required placeholder="方法">-->
+                    <select id="action" name="action" class="form-control">
+                        <option value="">--请选择--</option>
+                        {% for action in actionList if not isAdd %}
+                        <option value="{{ action }}" {% if functionInfo.action == action %} selected {% endif %}>{{ action }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">名称：</label>
                 <div class="col-sm-8">
                     <input id="function_name" name="function_name" class="form-control" type="text" value="{{ functionInfo.name }}" required placeholder="功能名称">
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">描述：</label>
                 <div class="col-sm-8">
                     <textarea name="description" class="form-control">{{ functionInfo.description }}</textarea>
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">类型：</label>
                 <div class="col-sm-8">
@@ -47,12 +64,13 @@
                             <label for="type_normal">普通</label>
                         </div>
                         <div class="radio radio-danger radio-inline">
-                            <input type="radio" id="type_menu" value="1" name="type" {% if functionInfo.status=='1' %} checked {% endif %}>
+                            <input type="radio" id="type_menu" value="1" name="type" {% if functionInfo.type=='1' %} checked {% endif %}>
                             <label for="type_menu">菜单</label>
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="form-group">
                 <label class="col-sm-3 control-label">状态：</label>
                 <div class="col-sm-8">
@@ -96,28 +114,47 @@
     $("#addFunctionsForm").validate({
         ignore:'',
         rules: {
-            module: {
-                required: true,
-            },
             controller: {
                 required : true,
             },
             action: {
                 required : true,
+                remote: {
+                    url: "/admin/function/checkFunction",//发送请求的url地址
+                    type: "post", //请求方式
+                    dataType: "json",//接收的数据类型
+                    data: {
+                        controller: function () {
+                            return $("#controller").find("option:selected").text();
+                        },
+                        action: function () {
+                            return $("#action").val();
+                        },
+                        fid : function () {
+                            return $('#fid').val();
+                        }
+                    },
+                    dataFilter: function (json) { //过滤返回结果
+                        if (json == 'true') {
+                            return false;
+                        }  //false代表已经存在
+                        else {
+                            return true;
+                        } //true代表还未存在
+                    }
+                }
             },
             function_name: {
                 required : true,
             }
         },
         messages: {
-            module: {
-                required: "请填写模块（module）"
-            },
             controller : {
-                required :"请填写控制器（controller）",
+                required :"请选择控制器",
             },
             action: {
-                required : "请填写方法（action）",
+                required : "请选择方法",
+                remote : "输入的功能已经存在，请不要重复添加！"
             },
             function_name: {
                 required : "请填写功能名称",
@@ -156,6 +193,31 @@
         } else {
             return;
         }
+    });
+
+    $('#controller').change(function () {
+        var controller = $('#controller').val();
+        if($.data(document.getElementById("action"), "previousValue")) {
+            $.data(document.getElementById("action"), "previousValue").old = null;
+        }
+        $.ajax({
+            url: 'getActionByController',
+            data: {'controller' : controller},
+            dataType: "json",
+            type: 'POST',
+            success: function (result) {
+                var actionList = result.data;
+                if(result.code == 1 && actionList){
+                    var tpl = '<option value="">--请选择--</option>';
+                    for (var i = 0;i < actionList.length; i++){
+                        tpl += '<option value=' + actionList[i] + '>' + actionList[i] + '</option>';
+                    }
+                    $("#action").html(tpl);
+                }else{
+                    bootbox.alert(result.msg);
+                }
+            }
+        });
     });
 </script>
 {% endblock %}

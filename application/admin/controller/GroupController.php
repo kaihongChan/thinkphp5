@@ -91,8 +91,10 @@ class GroupController extends BaseController
             }
         }
 
-        $this->assign('functionData', $functionData);
-        $this->assign('isAdd', true);
+        $this->assign([
+            'functionData' => $functionData,
+            'isAdd' => true
+        ]);
         return view('group:addGroup');
     }
 
@@ -145,10 +147,11 @@ class GroupController extends BaseController
             }
         }
 
-        $this->assign('functionData', $functionData);
-        $this->assign('groupInfo', $groupInfo);
-        $this->assign('isAdd', false);
-        $this->assign('groupInfo', $groupInfo);
+        $this->assign([
+            'functionData' => $functionData,
+            'groupInfo' => $groupInfo,
+            'isAdd' => true,
+        ]);
         return view('group:addGroup');
     }
 

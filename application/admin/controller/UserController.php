@@ -9,7 +9,6 @@
 namespace app\admin\controller;
 
 
-use app\admin\model\Functions;
 use app\admin\model\Group;
 use app\admin\model\User;
 
@@ -31,11 +30,12 @@ class UserController extends BaseController
 
             $pageStart = !empty($param['iDisplayStart']) ? $param['iDisplayStart'] : 0;   //default pageStart
             $pageSize = !empty($param['iDisplayLength']) ? $param['iDisplayLength'] : 10; //default pageSize
+            $searchKey = $param['sSearch'];
 
             //检索条件
-            $sqlWhere = [
-//            'status' => 1,
-            ];
+            $sqlWhere = [];
+            empty($searchKey) ? $sqlWhere : $sqlWhere['name | display_name'] = ['like', "%$searchKey%"];
+
             $userList = User::all(function($query) use($sqlWhere, $pageStart, $pageSize){
                 $query->where($sqlWhere)->limit($pageStart, $pageSize)->order('id', 'ASC');
             });
@@ -87,9 +87,8 @@ class UserController extends BaseController
                 'remarks' => input('post.remarks'),
                 'add_time' => time(),
                 'update_time' => time(),
-                'status' => 1,
+                'status' => intval(input('post.status')),
                 'group_list' => is_array($group_ids) ? json_encode($group_ids, JSON_UNESCAPED_UNICODE): '',
-
             ];
             $userModel = User::create($data);
 
@@ -102,9 +101,11 @@ class UserController extends BaseController
         }
 
         $groupList = Group::all(['status' => 1]);
-        $this->assign('groupList', $groupList);
-        $this->assign('isAdd', true);
-        echo $this->fetch('user:addUser');
+        $this->assign([
+           'groupList' => $groupList,
+           'isAdd' => true,
+        ]);
+        return view('user:addUser');
     }
 
     /**
@@ -112,11 +113,13 @@ class UserController extends BaseController
      */
     public function checkUserAction()
     {
-        $username = input('post.username');
+        $username = trim(input('post.username'));
+        $uid = intval(input('post.uid'));
 
-        $userInfo = User::get(['name' => $username]);
+        $newInfo = User::get(['name' => $username]);
+        $oldInfo = User::get(['id' => $uid]);
 
-        if (!is_null($userInfo)) {
+        if (!is_null($newInfo) && $oldInfo['id'] != $newInfo['id']) {
             return true;
         }
 
@@ -140,9 +143,8 @@ class UserController extends BaseController
                 'display_name' => input('post.display_name'),
                 'remarks' => input('post.remarks'),
                 'update_time' => time(),
-                'status' => 1,
+                'status' => intval(input('post.status')),
                 'group_list' => is_array($group_ids) ? json_encode($group_ids, JSON_UNESCAPED_UNICODE): '',
-
             ];
             // 生成密码
             $password = input('post.password');
@@ -164,10 +166,12 @@ class UserController extends BaseController
         $groupList = Group::all(['status' => 1]);
         $checkedGroupList = empty($userInfo['group_list']) ? [] : json_decode($userInfo['group_list'], true);
 
-        $this->assign('isAdd', false);
-        $this->assign('groupList', $groupList);
-        $this->assign('checkedGroupList', $checkedGroupList);
-        $this->assign('userInfo', $userInfo);
+        $this->assign([
+            'isAdd' => false,
+            'groupList' => $groupList,
+            'checkedGroupList' => $checkedGroupList,
+            'userInfo' => $userInfo
+        ]);
         return view('user:addUser');
     }
 

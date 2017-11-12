@@ -86,8 +86,12 @@
                     {
                         'aTargets' : [4],
                         'mRender' : function (data, type, full) {
+                            var isAdmin = '';
+                            if (full.id ==1) {
+                                isAdmin = 'disabled = "disabled"';
+                            }
                             return '<button class="btn btn-info btn-outline" type="button" onclick="editGroup('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
+                                +'<button class="btn btn-danger btn-outline" '+ isAdmin+' type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
                         }
                     }
                 ],
@@ -153,7 +157,46 @@
     //删除用户
     function deleteGroup(id) {
         bootbox.confirm({
-
+            message: "确定删除用户？",
+            buttons: {
+                confirm: {
+                    label: '确认',
+                    className: 'btn-success btn-outline'
+                },
+                cancel: {
+                    label: '取消',
+                    className: 'btn-danger btn-outline'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.ajax({
+                        url: 'deleteGroup',
+                        data: {'gid' : id},
+                        dataType: "json",
+                        type: 'POST',
+                        success: function (json) {
+                            if (json.code == 1) {
+                                bootbox.hideAll();
+                                bootbox.alert({
+                                    message:json.msg,
+                                    buttons: {
+                                        ok: {
+                                            label: '确定',
+                                            className: 'btn-success'
+                                        }
+                                    },
+                                    callback: function (data) {
+                                        window.location.reload(true);
+                                    }
+                                });
+                            } else {
+                                bootbox.alert(json.msg);
+                            }
+                        }
+                    });
+                }
+            }
         });
     }
 </script>

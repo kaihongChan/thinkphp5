@@ -69,7 +69,7 @@
                             </a>
                         </legend>
                         {% for kk, vv in v %}
-                        <div class="col-xs-3 checkbox checkbox-success checkbox-inline checkbox_child">
+                        <div class="col-sm-2 checkbox checkbox-success checkbox-inline checkbox_child">
                             <input type="checkbox" name="powers[]" value="{{ vv.id }}" id="{{ vv.id }}" {% if vv.id in groupInfo.powers %} checked {% endif %}/>
                             <label for="{{ vv.id }}">{{ vv.name }}</label>
                         </div>

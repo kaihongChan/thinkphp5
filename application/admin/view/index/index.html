@@ -50,6 +50,16 @@
                     </div>
                 </li>
                 {% for firstLevel in navigation %}
+
+                {% if not firstLevel.pid and firstLevel.mca %}
+                <li>
+                    <a href="{{ firstItem.mca }}">
+                        <i class="fa {{ firstLevel.icon }}"></i>
+                        <span class="nav-label">{{ firstLevel.title }}</span>
+                        <!--<span class="fa arrow"></span>-->
+                    </a>
+                </li>
+                {% else %}
                 <li>
                     <a href="{{ firstLevel.mca }}">
                         <i class="fa {{ firstLevel.icon }}"></i>
@@ -57,14 +67,39 @@
                         <span class="fa arrow"></span>
                     </a>
                     <ul class="nav nav-second-level">
-                        {% for secondLevel in firstLevel.pid %}
+                        {% for secondLevel in firstLevel.pid if secondLevel|length > 0%}
                         <li>
                             <a class="J_menuItem" href="{{ secondLevel.mca }}">{{ secondLevel.title }}</a>
                         </li>
                         {% endfor %}
                     </ul>
                 </li>
+                {% endif %}
+
                 {% endfor %}
+
+                {#<li>
+                    <a href="#">
+                        <i class="fa fa-home"></i>
+                        <span class="nav-label">系统设置</span>
+                        <span class="fa arrow"></span>
+                    </a>
+                    <ul class="nav nav-second-level">
+                        <li>
+                            <a class="J_menuItem" href="/admin/user/index">系统用户</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/group/index">用户组</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/function/index">系统功能</a>
+                        </li>
+                        <li>
+                            <a class="J_menuItem" href="/admin/menu/index">系统菜单</a>
+                        </li>
+                    </ul>
+                </li>#}
+
             </ul>
         </div>
     </nav>

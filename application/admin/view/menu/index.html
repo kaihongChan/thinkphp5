@@ -127,6 +127,7 @@
 <script src="__static__/zTree/js/jquery.ztree.exedit.js"></script>
 <script src="__static__/hplus/js/plugins/bootbox/bootbox.min.js"></script>
 <script>
+    //TODO:validate
     var zTreeObj;
 
     var setting = {
@@ -160,7 +161,34 @@
                     $("#menuEditForm select[name='menu_function']").val("#");
                     $("#menuEditForm select[name='menu_function']").parents(".form-group").hide();
                 } else {
-                    $("#menuEditForm select[name='menu_function']").val(node.function);
+                    $.ajax({
+                        url: 'refreshMenuFunction',
+                        data: {'functionId' : node.function},
+                        dataType: 'json',
+                        type: 'POST',
+                        success: function (json) {
+                            if (json.code == 1) {
+                                var data = json.data;
+                                var html = '<option value="">-- 请选择功能 --</option>';
+                                for(var tmp in data){
+                                    html += '<optgroup label="'+ tmp +'">';
+                                    var tmpData = data[tmp];
+                                    for (var i = 0; i < tmpData.length; i++) {
+                                        if (tmpData[i].is_selected) {
+                                            html += '<option value="'+ tmpData[i].id +'" selected>&nbsp;&nbsp;|-- '+ tmpData[i].name +'</option>';
+                                        }else {
+                                            html += '<option value="'+ tmpData[i].id +'">&nbsp;&nbsp;|-- '+ tmpData[i].name +'</option>';
+                                        }
+                                    }
+                                    html += '</optgroup>';
+                                }
+                                $('#menu_function').html(html);
+                            } else {
+                                bootbox.alert(json.msg);
+                            }
+                        }
+                    });
+//                    $("#menuEditForm select[name='menu_function']").val(node.function);
                     $("#menuEditForm select[name='menu_function']").parents(".form-group").show();
                 }
 
@@ -185,6 +213,9 @@
                     $("#edit_status_off").attr('checked','checked');
                 }
 
+                if (node.children && node.children.length > 0) {
+                    zTreeObj.expandNode(node, true, true, true);
+                }
             },
             beforeRemove : function (treeId, node) {
                 zTreeObj.selectNode(node);
@@ -253,6 +284,11 @@
 
     $(document).ready(function(){
         zTreeObj = $.fn.zTree.init($("#menu_tree"), setting, zNodes);
+
+//        var nodes = zTreeObj.getNodes();
+//        if (nodes.length > 0) {
+//            zTreeObj.expandNode(nodes[0], true, true, true);
+//        }
     });
 
     function addMenu(pid) {

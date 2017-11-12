@@ -36,8 +36,10 @@ class loginController extends Controller
                 $this->redirect('index/index');
                 exit;
             }
-            $this->assign('error', $error);
-            $this->assign('username', $username);
+            $this->assign([
+                'error' => $error,
+                'username' => $username
+            ]);
         }
 
         return view();
