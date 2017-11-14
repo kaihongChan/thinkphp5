@@ -86,12 +86,12 @@
                     {
                         'aTargets' : [4],
                         'mRender' : function (data, type, full) {
-                            var isAdmin = '';
-                            if (full.id ==1) {
-                                isAdmin = 'disabled = "disabled"';
-                            }
+//                            var isAdmin = '';
+//                            if (full.id ==1) {
+//                                isAdmin = 'disabled = "disabled"';
+//                            }
                             return '<button class="btn btn-info btn-outline" type="button" onclick="editGroup('+full.id+');"><i class="fa fa-paste"></i>编辑</button> &nbsp;&nbsp;'
-                                +'<button class="btn btn-danger btn-outline" '+ isAdmin+' type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
+                                +'<button class="btn btn-danger btn-outline" type="button" onclick="deleteGroup('+ full.id +')"><i class="fa fa-trash"></i> <span class="bold">删除</span></button>';
                         }
                     }
                 ],

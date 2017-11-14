@@ -67,6 +67,7 @@ class GroupController extends BaseController
                 'status' => intval(input('post.status')),
                 'powers' => json_encode($powers, JSON_UNESCAPED_UNICODE),
                 'add_time' => time(),
+                'update_time' => time(),
             ];
             $groupModel = Group::create($data);
 
@@ -150,7 +151,7 @@ class GroupController extends BaseController
         $this->assign([
             'functionData' => $functionData,
             'groupInfo' => $groupInfo,
-            'isAdd' => true,
+            'isAdd' => false,
         ]);
         return view('group:addGroup');
     }
