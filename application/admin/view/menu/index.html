@@ -1,0 +1,338 @@
+{% extends 'public/base.html' %}
+
+{% block header %}
+<link rel="stylesheet" href="__static__/zTree/css/metroStyle/metroStyle.css" />
+<link href="__static__/hplus/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+<link href="__static__/hplus/css/plugins/sweetalert/sweetalert.css">
+<link href="__static__/hplus/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    菜单项
+                    <div class="ibox-tools">
+                        <button id="addMenuBtn" onclick="addMenu(0)" type="button">
+                            <i class="ace-icon fa fa-plus bigger-120"></i>
+                            添加
+                        </button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <ul id="menu_tree" class="ztree"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-sm-6" id="menuConfig_block">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <i class="fa fa-info-circle"></i> 配置信息
+                </div>
+
+                <div class="panel-body">
+                    <form class="form-horizontal" id="menuEditForm">
+                        <div class="row">
+                            <input type="hidden" name="menu_id" value="1"/>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">名称：</label>
+                                <div class="col-sm-6">
+                                    <input id="menu_name" name="menu_name" class="form-control" type="text" value="" placeholder="请输入菜单名称">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">功能：</label>
+                                <div class="col-sm-6">
+                                    <select id="menu_function" name="menu_function" class="form-control">
+                                        <option value="">-- 请选择功能 --</option>
+                                        {% for k, v in functionData if v|length > 0 %}
+                                        <optgroup label="{{ k }}">
+                                            {% for kk, vv in v if vv.type == 1 %}
+                                            <option value="{{ vv.id }}">&nbsp;&nbsp;|-- {{ vv.name }}</option>
+                                            {% endfor %}
+                                        </optgroup>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">图标：</label>
+                                <div class="col-sm-6">
+                                    <input id="menu_icon" name="menu_icon" class="form-control" type="text" value="" placeholder="使用Font Awesome图标库，如：fa-weibo">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">排序：</label>
+                                <div class="col-sm-6">
+                                    <input id="menu_sort" name="menu_sort" class="form-control" type="text" value="" placeholder="请输入数字">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-3 control-label">状态:</label>
+                                <div class="col-sm-6">
+                                    <div class="switch">
+                                        <div class="radio radio-info radio-inline">
+                                            <input type="radio" id="edit_status_on" value="1" name="menu_status">
+                                            <label for="edit_status_on">启用</label>
+                                        </div>
+                                        <div class="radio radio-danger radio-inline">
+                                            <input type="radio" id="edit_status_off" value="0" name="menu_status">
+                                            <label for="edit_status_off">禁用</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <button class="btn btn-outline btn-primary" id="addSubMenuBtn" style="display: none; float: right;">
+                                <i class="ace-icon fa fa-plus"></i>
+                                添加子菜单
+                            </button>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <button class="btn btn-outline btn-info" type="button" id="saveEditMenuBtn" onclick="saveEditMenu();" style="display: none;">
+                                <i class="fa fa-check"></i>修改
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="__static__/hplus/js/jquery.min.js?v=2.1.4"></script>
+<script src="__static__/hplus/js/bootstrap.min.js?v=3.3.5"></script>
+<script src="__static__/hplus/js/content.min.js?v=1.0.0"></script>
+<script src="__static__/hplus/js/plugins/validate/jquery.validate.min.js"></script>
+<script src="__static__/hplus/js/plugins/validate/messages_zh.min.js"></script>
+<script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
+<script src="__static__/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="__static__/zTree/js/jquery.ztree.core.js"></script>
+<script src="__static__/zTree/js/jquery.ztree.exedit.js"></script>
+<script src="__static__/hplus/js/plugins/bootbox/bootbox.min.js"></script>
+<script>
+    //TODO:validate
+    var zTreeObj;
+
+    var setting = {
+        data : {
+            simpleData : {
+                enable : true,
+                idKey : "id",
+                pIdKey : "pid",
+                rootPId : 0
+            }
+        },
+
+        view : {
+            dblClickExpand: false
+        },
+
+        edit : {
+            enable : true,
+            removeTitle : "删除",
+            showRenameBtn : false,
+            showRemoveBtn:true
+        },
+
+        callback : {
+            onClick : function (event, treeId, node) {
+                $('#saveEditMenuBtn').show();
+                $("#menuEditForm input[name='menu_id']").val(node.id);
+                $("#menuEditForm input[name='menu_name']").val(node.name);
+
+                if ("#" == node.function) {
+                    $("#menuEditForm select[name='menu_function']").val("#");
+                    $("#menuEditForm select[name='menu_function']").parents(".form-group").hide();
+                } else {
+                    $.ajax({
+                        url: 'refreshMenuFunction',
+                        data: {'functionId' : node.function},
+                        dataType: 'json',
+                        type: 'POST',
+                        success: function (json) {
+                            if (json.code == 1) {
+                                var data = json.data;
+                                var html = '<option value="">-- 请选择功能 --</option>';
+                                for(var tmp in data){
+                                    html += '<optgroup label="'+ tmp +'">';
+                                    var tmpData = data[tmp];
+                                    for (var i = 0; i < tmpData.length; i++) {
+                                        if (tmpData[i].is_selected) {
+                                            html += '<option value="'+ tmpData[i].id +'" selected>&nbsp;&nbsp;|-- '+ tmpData[i].name +'</option>';
+                                        }else {
+                                            html += '<option value="'+ tmpData[i].id +'">&nbsp;&nbsp;|-- '+ tmpData[i].name +'</option>';
+                                        }
+                                    }
+                                    html += '</optgroup>';
+                                }
+                                $('#menu_function').html(html);
+                            } else {
+                                bootbox.alert(json.msg);
+                            }
+                        }
+                    });
+//                    $("#menuEditForm select[name='menu_function']").val(node.function);
+                    $("#menuEditForm select[name='menu_function']").parents(".form-group").show();
+                }
+
+                $("#menuEditForm input[name='menu_icon']").val(node.ico);
+                if (node.pid == 0) {
+                    $("#menuEditForm input[name='menu_icon']").parents(".form-group").show();
+                } else {
+                    $("#menuEditForm input[name='menu_icon']").parents(".form-group").hide();
+                }
+
+                if (node.pid == 0 && "#" == node.function) {
+                $("#addSubMenuBtn").attr('onclick','addMenu(' + node.id +')');
+                $("#addSubMenuBtn").show();
+                } else {
+                    $("#addSubMenuBtn").hide();
+                }
+
+                $("#menuEditForm input[name='menu_sort']").val(node.sort);
+                if (node.status == 1) {
+                    $("#edit_status_on").attr('checked','checked');
+                } else {
+                    $("#edit_status_off").attr('checked','checked');
+                }
+
+                if (node.children && node.children.length > 0) {
+                    zTreeObj.expandNode(node, true, true, true);
+                }
+            },
+            beforeRemove : function (treeId, node) {
+                zTreeObj.selectNode(node);
+                if (node.children && node.children.length > 0) {
+                    bootbox.alert("请先删除所有子菜单！");
+                    return false;
+                }
+
+                var parentNode = node.getParentNode(), title = "";
+                if (parentNode) {
+                    title = parentNode.name + " -> " + node.name;
+                } else {
+                    title = node.name;
+                }
+
+                if (confirm("确定要删除\"" + title + "\"吗？")) {
+                    return true;
+                }
+
+                return false;
+            },
+            onRemove : function (event, treeId, node) {
+                var jqxhr = $.ajax({
+                    type: 'post',
+                    url: "deleteMenu",
+                    dataType: "json",
+                    data: {"id" : node.id}
+                });
+                jqxhr.done(function (r) {
+                    if(r.code == 200){
+                        bootbox.hideAll();
+                        bootbox.alert({
+                            message:r.msg,
+                            buttons: {
+                                ok: {
+                                    label: '确定',
+                                    className: 'btn-success'
+                                }
+                            },
+                            callback: function (result) {
+                                window.location.reload(true);
+                            }
+                        });
+                    }else{
+                        bootbox.alert({
+                            message:r.msg,
+                            buttons: {
+                                ok: {
+                                    label: '确定',
+                                    className: 'btn-danger'
+                                }
+                            },
+                            callback: function (result) {
+
+                            }
+                        });
+                    }
+                });
+                jqxhr.fail(function(jqXHR, textStatus){
+                    bootbox.alert(textStatus);
+                });
+            }
+        }
+    };
+    var zNodes = {{ menuList is defined ? menuList|json_encode|raw : "[]" }};
+
+    $(document).ready(function(){
+        zTreeObj = $.fn.zTree.init($("#menu_tree"), setting, zNodes);
+
+//        var nodes = zTreeObj.getNodes();
+//        if (nodes.length > 0) {
+//            zTreeObj.expandNode(nodes[0], true, true, true);
+//        }
+    });
+
+    function addMenu(pid) {
+        $.ajax({
+            url: 'addMenu',
+            data: {'pid' : pid},
+            dataType: 'html',
+            type: 'GET',
+            success: function (tpl) {
+                var dialog = bootbox.dialog({
+                    title: '添加菜单项',
+                    message: tpl,
+                });
+            }
+        });
+    }
+
+    //保存菜单项
+    function saveEditMenu() {
+        $.ajax({
+            url: 'editMenu',
+            data: $('#menuEditForm').serializeArray(),
+            dataType: 'json',
+            type: 'POST',
+            success: function (json) {
+                if (json.code == 1) {
+                    bootbox.hideAll();
+                    bootbox.alert({
+                        message:json.msg,
+                        buttons: {
+                            ok: {
+                                label: '确定',
+                                className: 'btn-success'
+                            }
+                        },
+                        callback: function (rel) {
+                            window.location.reload(true);
+                        }
+                    });
+                } else {
+                    bootbox.alert(json.msg);
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

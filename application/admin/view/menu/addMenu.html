@@ -1,0 +1,117 @@
+{% extends 'public/base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block body %}
+<form class="form-horizontal" id="menuAddForm">
+
+    <input type="hidden" name="pid" value="{{ pid }}">
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right" for="menu_name">名称</label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" id="menu_name" name="menu_name" value="" />
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right" for="menu_function">功能</label>
+        <div class="col-sm-6">
+            <select name="menu_function" id="menu_function" class="form-control">
+
+                {% if pid <= 0 %}
+                <option value="#">-- 一级菜单(带子菜单) --</option>
+                {% endif %}
+
+                {% for k, v in functionData if v|length > 0 %}
+                <optgroup label="{{ k }}">
+                    {% for kk, vv in v if vv.type == 1 %}
+                    <option value="{{ vv.id }}">&nbsp;&nbsp;|-- {{ vv.name }}</option>
+                    {% endfor %}
+                </optgroup>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label" for="menu_sort">排序</label>
+        <div class="col-sm-6">
+            <input type="text" class="form-control" id="menu_sort" name="menu_sort" value="0" >
+        </div>
+    </div>
+
+    {% if pid <= 0 %}
+    <div class="form-group">
+        <label class="col-sm-3 control-label no-padding-right">图标</label>
+        <div class="col-sm-6">
+            <input id="menu_icon" name="menu_icon" class="form-control" placeholder="" type="text">
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label class="col-sm-3 control-label">状态:</label>
+        <div class="col-sm-6">
+            <div class="switch">
+                <div class="radio radio-info radio-inline">
+                    <input type="radio" id="status_on" value="1" name="menu_status" {% if isAdd %} checked {% endif %}>
+                    <label for="status_on">启用</label>
+                </div>
+                <div class="radio radio-danger radio-inline">
+                    <input type="radio" id="status_off" value="0" name="menu_status">
+                    <label for="status_off">禁用</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<hr>
+<div class="form-group">
+    <div class="center" style="text-align: center">
+        <button class="btn btn-outline btn-info" id="saveMenu" type="button" onclick="saveMenu();">
+            <i class="ace-icon fa fa-check"></i>
+            保存
+        </button>
+        <a class="btn btn-outline btn-default" type="button" onclick="bootbox.hideAll();">
+            <i class="ace-icon fa fa-close"></i>
+            取消
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    //保存菜单项
+    function saveMenu() {
+        $.ajax({
+            url: 'addMenu',
+            data: $('#menuAddForm').serializeArray(),
+            dataType: 'json',
+            type: 'POST',
+            success: function (json) {
+                if (json.code == 1) {
+                    bootbox.hideAll();
+                    bootbox.alert({
+                        message:json.msg,
+                        buttons: {
+                            ok: {
+                                label: '确定',
+                                className: 'btn-success'
+                            }
+                        },
+                        callback: function (rel) {
+                            window.location.reload(true);
+                        }
+                    });
+                } else {
+                    bootbox.alert(json.msg);
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}
+

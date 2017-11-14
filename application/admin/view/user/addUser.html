@@ -1,166 +1,194 @@
 {% extends 'public/base.html' %}
 
+{% block body %}
+<div class="row">
+    <div class="col-sm-12">
+        <form class="form-horizontal m-t" id="addUserForm">
+            <input type="hidden" id="uid" name="uid" value="{{ userInfo.id }}">
+            <div class="form-group">
+                <label class="col-sm-3 control-label">所属用户组：</label>
+                <div class="col-sm-8" id="group_checkbox_list">
+                    <input name="group_check" type="hidden" id="group_check">
+                    {% for group in groupList %}
+                    <div class="checkbox checkbox-success checkbox-inline">
+                        <input type="checkbox" id="checkbox_{{group.id}}" name="group[]" value="{{ group.id }}" {% if group.id in checkedGroupList %}checked{% endif %}>
+                        <label for="checkbox_{{group.id}}"> {{ group.name }} </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">用户名：</label>
+                <div class="col-sm-8">
+                    <input id="username" name="username" class="form-control" placeholder="输入用户名" type="text" value="{{ userInfo.name }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">显示名：</label>
+                <div class="col-sm-8">
+                    <input id="display_name" name="display_name" class="form-control" placeholder="输入显示名" type="text" value="{{ userInfo.display_name }}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">备注：</label>
+                <div class="col-sm-8">
+                    <textarea name="remarks" class="form-control">{{ userInfo.remarks }}</textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">密码：</label>
+                <div class="col-sm-8">
+                    <input id="password" name="password" class="form-control" type="password" {% if isAdd %} placeholder="输入密码" {% else %} placeholder="留空则不修改" {% endif %}>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">确认密码：</label>
+                <div class="col-sm-8">
+                    <input id="confirm_password" name="confirm_password" class="form-control" type="password" {% if isAdd %} placeholder="确认密码" {% else %} placeholder="留空则不修改" {% endif %}>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="col-sm-3 control-label">状态：</label>
+                <div class="col-sm-8">
+                    <div class="switch">
+                        <div class="radio radio-info radio-inline">
+                            <input type="radio" id="status_on" value="1" name="status" {% if isAdd %} checked {% endif %} {% if userInfo.status=='1' %} checked {% endif %}>
+                            <label for="status_on">启用</label>
+                        </div>
+                        <div class="radio radio-danger radio-inline">
+                            <input type="radio" id="status_off" value="0" name="status" {% if userInfo.status=='0' %} checked {% endif %}>
+                            <label for="status_off">禁用</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        <div class="space-20"></div>
+
+        <div class="text-center">
+            <button class="btn btn-outline btn-info" type="button" id="saveUserBtn">
+                <i class="fa fa-check"></i>提交
+            </button>
+            <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+                <i class="fa fa-times"></i>关闭
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block scripts %}
 <script src="__static__/hplus/js/plugins/validate/jquery.validate.min.js"></script>
 <script src="__static__/hplus/js/plugins/validate/messages_zh.min.js"></script>
 <script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
 <script>
-    $(function() {
-        //表单验证
-        $("#addUserForm").validate({
-            rules: {
-                group_check: {
-                    required: true,
-//                    atLeastOneChecked: true
-                },
-                username: {
-                    required: true,
-                    //异步验证 开始
-                    {% if isAdd %}
-                    remote: {
-                        url: "/admin/user/checkUser",//发送请求的url地址
-                        type: "post", //请求方式
-                        dataType: "json",//接收的数据类型
-                        data: {
-                            username: function () {
-                                return $("#username").val();
-                            }
+$(function() {
+    //用户组是否选择验证（通过checkbox选择的个数判断是否选择）
+$('#group_check').val($("#group_checkbox_list input[type='checkbox']:checked").length);//初始化checkbox选择个数
+$("#group_checkbox_list input[type='checkbox']").change(function() {
+    var check_num = $('#group_check').val();
+    if ($(this).prop('checked')) { //如果选中，个数加1
+        check_num++;
+        $('#group_check').val(check_num);
+    }else{//取消选中时个数减一
+        check_num--;
+        $('#group_check').val(check_num);
+    }
+});
+//表单验证
+$("#addUserForm").validate({
+    ignore: '',
+    rules: {
+        group_check: {
+            required: true,
+            min: 1
+        },
+        username: {
+            required: true,
+            //异步验证 开始
+            remote: {
+                url: "/admin/user/checkUser",//发送请求的url地址
+                    type: "post", //请求方式
+                    dataType: "json",//接收的数据类型
+                    data: {
+                        username: function () {
+                            return $("#username").val();
                         },
-                        dataFilter: function (json) { //过滤返回结果
-                            if (json == 'true') return false;  //false代表用户名已经存在
-                            else return true; //true代表用户名还未存在
+                        uid : function () {
+                            return $('#uid').val();
                         }
-                    }
-                    //异步验证 结束
-                    {% endif %}
-                },
-                password: {
-                    {% if isAdd %}required:true,{% endif %}
-                    minlength: 5
-                },
-                confirm_password: {
-                    {% if isAdd %}required:true,{% endif %}
-                    minlength: 5,
-                    equalTo:"#password"
-                }
-            },
-            messages: {
-                username: {
-                    required: "请输入用户名",
-                    remote:"输入的用户名已经存在"
-                },
-                password: {
-                    required: "请输入密码",
-                        minlength: "密码长度不能小于 5 个字母"
-                },
-                confirm_password: {
-                    required: "请输入密码",
-                        minlength: "密码长度不能小于 5 个字母",
-                        equalTo:"两次输入密码不一致"
-                },
-                group_check: {
-                    required:"请至少选择一项用户组",
+                    },
+                dataFilter: function (json) { //过滤返回结果
+                    if (json == 'true') return false;  //false代表用户名已经存在
+                    else return true; //true代表用户名还未存在
                 }
             }
-        });
-    });
-
-    $('#saveUserBtn').click(function(){
-        {% if isAdd %} var __url = 'addUser';{% else %} var __url = 'editUser';{% endif %}
-        if ($('#addUserForm').valid()) {
-            $.ajax({
-                url: __url,
-                data: $('#addUserForm').serializeArray(),
-                dataType: "json",
-                type: 'POST',
-                success: function (result) {
-                    if(result.code == 1){
-                        bootbox.hideAll();
-                        bootbox.alert({
-                            message:result.msg,
-                            buttons: {
-                                ok: {
-                                    label: '确定',
-                                    className: 'btn-success'
-                                }
-                            },
-                            callback: function (rel) {
-                                window.location.reload(true);
-                            }
-                        });
-                    }else{
-                        bootbox.alert(result.msg);
-                    }
-                }
-            });
-        } else {
-            return;
+            //异步验证 结束
+        },
+        password: {
+            {% if isAdd %}required:true,{% endif %}
+            minlength: 5
+        },
+        confirm_password: {
+            {% if isAdd %}required:true,{% endif %}
+            minlength: 5,
+            equalTo:"#password"
         }
-    });
+    },
+    messages: {
+        username: {
+            required: "请输入用户名",
+                remote:"输入的用户名已经存在"
+        },
+        password: {
+            required: "请输入密码",
+                minlength: "密码长度不能小于 5 个字母"
+        },
+        confirm_password: {
+            required: "请输入密码",
+                minlength: "密码长度不能小于 5 个字母",
+                equalTo:"两次输入密码不一致"
+        },
+        group_check: {
+            required:"请至少选择一项用户组",
+                min: "请至少选择一项用户组"
+        }
+    }
+});
+        //提交按钮监听
+$('#saveUserBtn').click(function(){
+            {% if isAdd %} var __url = 'addUser';{% else %} var __url = 'editUser';{% endif %}
+            if ($('#addUserForm').valid()) {
+                $.ajax({
+                    url: __url,
+                    data: $('#addUserForm').serializeArray(),
+                    dataType: "json",
+                    type: 'POST',
+                    success: function (result) {
+                        if(result.code == 1){
+                            bootbox.hideAll();
+                            bootbox.alert({
+                                message:result.msg,
+                                buttons: {
+                                    ok: {
+                                        label: '确定',
+                                        className: 'btn-success'
+                                    }
+                                },
+                                callback: function (rel) {
+                                    window.location.reload(true);
+                                }
+                            });
+                        }else{
+                            bootbox.alert(result.msg);
+                        }
+                    }
+                });
+            } else {
+                return;
+            }
+        });
+});
 </script>
-{% endblock %}
-
-{% block body %}
-<body class="gray-bg">
-    <div class="wrapper wrapper-content animated fadeInRight">
-    <div class="row">
-        <div class="col-sm-12">
-            <form class="form-horizontal m-t" id="addUserForm">
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">所属用户组：</label>
-                    <div class="col-sm-8 group_checkbox_list">
-                        <input name="group_check" type="text" id="group_check">
-                        {% for group in groupList %}
-                        <div class="checkbox checkbox-success checkbox-inline">
-                            <input type="checkbox" id="checkbox_{{group.id}}" name="group[]" value="{{ group.id }}" {% if group.id in checkedGroupList %}checked{% endif %}>
-                            <label for="checkbox_{{group.id}}"> {{ group.name }} </label>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">用户名：</label>
-                    <div class="col-sm-8">
-                        <input id="username" name="username" class="form-control" placeholder="输入用户名" type="text" value="{{ userInfo.name }}">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">显示名：</label>
-                    <div class="col-sm-8">
-                        <input id="display_name" name="display_name" class="form-control" placeholder="输入显示名" type="text" value="{{ userInfo.display_name }}">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">备注：</label>
-                    <div class="col-sm-8">
-                        <textarea name="remarks" class="form-control">{{ userInfo.remarks }}</textarea>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">密码：</label>
-                    <div class="col-sm-8">
-                        <input id="password" name="password" class="form-control" type="password" {% if isAdd %} placeholder="输入密码" {% else %} placeholder="留空则不修改" {% endif %}>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">确认密码：</label>
-                    <div class="col-sm-8">
-                        <input id="confirm_password" name="confirm_password" class="form-control" type="password" {% if isAdd %} placeholder="确认密码" {% else %} placeholder="留空则不修改" {% endif %}>
-                    </div>
-                </div>
-            </form>
-            <div class="space-20"></div>
-
-            <div class="text-center">
-                <button class="btn btn-outline btn-info" type="button" id="saveUserBtn">
-                    <i class="fa fa-check"></i>提交
-                </button>
-                <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
-                    <i class="fa fa-times"></i>关闭
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-</body>
 {% endblock %}

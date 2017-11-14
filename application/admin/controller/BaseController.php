@@ -14,6 +14,8 @@ use think\Controller;
 
 class BaseController extends Controller
 {
+    CONST MODULE = 'admin';
+
     public function _initialize()
     {
         $isLogined = User::isLogined();
@@ -32,11 +34,13 @@ class BaseController extends Controller
         $controller = $this->request->controller();
         $action = $this->request->action();
 
-//        $auth = new Auth();
-//        $result = $auth->check($module.'/'.$controller.'/'.$action, $adm_uid);
-//        if(!$result) {
-//            $this->error('你没有该操作权限！');
-//        }
+        $mca = sprintf('%s:%s:%s', strtolower($module), strtolower($controller), strtolower($action));
+        if (!User::hasPowerFunc($mca)) {
+            ?>
+                <?php echo $this->fetch('public:error');?>
+            <?php
+            exit;
+        }
     }
 
     protected $needLogin = true;
