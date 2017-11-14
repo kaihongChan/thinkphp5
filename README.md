@@ -130,3 +130,5 @@ ThinkPHP® 商标和著作权所有者为上海顶想信息科技有限公司。
 
 ## 部署
 使用twig模板引擎，部署时将根目录下Twig.php文件拷贝至\thinkphp\library\think\view\driver下
+
+[截图：](https://github.com/kaihongChan/thinkphp5/blob/develop/1.jpg)
