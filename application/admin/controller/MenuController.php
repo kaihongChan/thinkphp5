@@ -119,6 +119,7 @@ class MenuController extends BaseController
                 'icon' => trim(input('post.menu_icon')),
                 'update_time' => time()
             ];
+
             $menuModel = Menu::update($data, ['id' => $menu_id]);
             if ($menuModel->result) {
                 $this->success('成功更新系统菜单！');

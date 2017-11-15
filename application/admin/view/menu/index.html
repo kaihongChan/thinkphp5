@@ -37,7 +37,7 @@
                 <div class="panel-body">
                     <form class="form-horizontal" id="menuEditForm">
                         <div class="row">
-                            <input type="hidden" name="menu_id" value="1"/>
+                            <input type="hidden" name="menu_id" value=""/>
 
                             <div class="form-group">
                                 <label class="col-sm-3 control-label">名称：</label>
@@ -50,14 +50,7 @@
                                 <label class="col-sm-3 control-label">功能：</label>
                                 <div class="col-sm-6">
                                     <select id="menu_function" name="menu_function" class="form-control">
-                                        <option value="">-- 请选择功能 --</option>
-                                        {% for k, v in functionData if v|length > 0 %}
-                                        <optgroup label="{{ k }}">
-                                            {% for kk, vv in v if vv.type == 1 %}
-                                            <option value="{{ vv.id }}">&nbsp;&nbsp;|-- {{ vv.name }}</option>
-                                            {% endfor %}
-                                        </optgroup>
-                                        {% endfor %}
+                                        <option class="hide" value="#">-- 一级菜单(带子菜单) --</option>
                                     </select>
                                 </div>
                             </div>
@@ -127,7 +120,6 @@
 <script src="__static__/zTree/js/jquery.ztree.exedit.js"></script>
 <script src="__static__/hplus/js/plugins/bootbox/bootbox.min.js"></script>
 <script>
-    //TODO:validate
     var zTreeObj;
 
     var setting = {
@@ -158,7 +150,7 @@
                 $("#menuEditForm input[name='menu_name']").val(node.name);
 
                 if ("#" == node.function) {
-                    $("#menuEditForm select[name='menu_function']").val("#");
+                    $('#menu_function').html('<option value="#">-- 一级菜单(带子菜单) --</option>');
                     $("#menuEditForm select[name='menu_function']").parents(".form-group").hide();
                 } else {
                     $.ajax({
@@ -216,6 +208,7 @@
                 if (node.children && node.children.length > 0) {
                     zTreeObj.expandNode(node, true, true, true);
                 }
+                $('#menuEditForm').valid();
             },
             beforeRemove : function (treeId, node) {
                 zTreeObj.selectNode(node);
@@ -284,7 +277,24 @@
 
     $(document).ready(function(){
         zTreeObj = $.fn.zTree.init($("#menu_tree"), setting, zNodes);
-
+        $('#menuEditForm').validate({
+            rules: {
+                menu_name: {
+                    required: true,
+                },
+                menu_icon: {
+                    required: true,
+                }
+            },
+            messages: {
+                menu_name: {
+                    required : "请输入菜单名",
+                },
+                menu_icon: {
+                    required: "请输入菜单图标",
+                }
+            }
+        });
 //        var nodes = zTreeObj.getNodes();
 //        if (nodes.length > 0) {
 //            zTreeObj.expandNode(nodes[0], true, true, true);
@@ -308,31 +318,33 @@
 
     //保存菜单项
     function saveEditMenu() {
-        $.ajax({
-            url: 'editMenu',
-            data: $('#menuEditForm').serializeArray(),
-            dataType: 'json',
-            type: 'POST',
-            success: function (json) {
-                if (json.code == 1) {
-                    bootbox.hideAll();
-                    bootbox.alert({
-                        message:json.msg,
-                        buttons: {
-                            ok: {
-                                label: '确定',
-                                className: 'btn-success'
+        if ($('#menuEditForm').valid()) {
+            $.ajax({
+                url: 'editMenu',
+                data: $('#menuEditForm').serializeArray(),
+                dataType: 'json',
+                type: 'POST',
+                success: function (json) {
+                    if (json.code == 1) {
+                        bootbox.hideAll();
+                        bootbox.alert({
+                            message:json.msg,
+                            buttons: {
+                                ok: {
+                                    label: '确定',
+                                    className: 'btn-success'
+                                }
+                            },
+                            callback: function (rel) {
+                                window.location.reload(true);
                             }
-                        },
-                        callback: function (rel) {
-                            window.location.reload(true);
-                        }
-                    });
-                } else {
-                    bootbox.alert(json.msg);
+                        });
+                    } else {
+                        bootbox.alert(json.msg);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 </script>
 {% endblock %}
