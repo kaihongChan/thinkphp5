@@ -1,0 +1,49 @@
+{% extends 'public/base.html' %}
+
+{% block header %}
+<link href="__static__/hplus/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+<script src="__static__/hplus/js/jquery.min.js"></script>
+<script src="__static__/hplus/js/bootstrap.min.js"></script>
+<script src="__static__/hplus/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+<script src="__static__/hplus/js/plugins/layer/layer.min.js"></script>
+<script src="__static__/hplus/js/hplus.min.js"></script>
+<script type="text/javascript" src="__static__/hplus/js/contabs.min.js"></script>
+<script src="__static__/hplus/js/plugins/pace/pace.min.js"></script>
+<script src="__static__/hplus/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+<script src="__static__/hplus/js/plugins/bootbox/bootbox.min.js"></script>
+<script src="__static__/userDefine.js"></script>
+<script>
+    function test() {
+        var dialog = bootbox.dialog({
+            title: '测试弹窗',
+            message: "123",
+            buttons: {
+                confirm: {
+                    label: '提交',
+                    className: 'btn-success btn-outline',
+                    callback: function () {
+
+                    }
+                },
+                cancel: {
+                    label: '取消',
+                    className: 'btn-danger btn-outline'
+                }
+            },
+        });
+    }
+</script>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox-content">
+                <button class="btn btn-info ajaxDialog" data-params="{fid:1}" data-url="/admin/function/editFunction" data-title="测试弹窗">测试按钮</button>
+            </div>
+        </div>
+    </div>
+{% endblock %}

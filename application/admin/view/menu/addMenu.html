@@ -9,14 +9,14 @@
     <input type="hidden" name="pid" value="{{ pid }}">
 
     <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right" for="menu_name">名称</label>
+        <label class="col-sm-3 control-label no-padding-right" for="menu_name">名称：</label>
         <div class="col-sm-6">
-            <input type="text" class="form-control" id="menu_name" name="menu_name" value="" />
+            <input type="text" class="form-control" id="menu_name" name="menu_name" value="" placeholder="在此输入菜单名称"/>
         </div>
     </div>
 
     <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right" for="menu_function">功能</label>
+        <label class="col-sm-3 control-label no-padding-right" for="menu_function">功能：</label>
         <div class="col-sm-6">
             <select name="menu_function" id="menu_function" class="form-control">
 
@@ -36,17 +36,17 @@
     </div>
 
     <div class="form-group">
-        <label class="col-sm-3 control-label" for="menu_sort">排序</label>
+        <label class="col-sm-3 control-label" for="menu_sort">排序：</label>
         <div class="col-sm-6">
-            <input type="text" class="form-control" id="menu_sort" name="menu_sort" value="0" >
+            <input type="text" class="form-control" id="menu_sort" name="menu_sort" value="0" placeholder="在此输入排序数字">
         </div>
     </div>
 
     {% if pid <= 0 %}
     <div class="form-group">
-        <label class="col-sm-3 control-label no-padding-right">图标</label>
+        <label class="col-sm-3 control-label no-padding-right">图标：</label>
         <div class="col-sm-6">
-            <input id="menu_icon" name="menu_icon" class="form-control" placeholder="" type="text">
+            <input id="menu_icon" name="menu_icon" class="form-control" placeholder="使用Font Awesome图标库，如：fa-weibo" type="text">
         </div>
     </div>
     {% endif %}
@@ -84,33 +84,59 @@
 
 {% block scripts %}
 <script>
+    //表单验证
+    $("#menuAddForm").validate({
+        rules: {
+            menu_name: {
+                required: true,
+            },
+            {% if pid <= 0 %}
+            menu_icon: {
+                required: true,
+            }
+            {% endif %}
+        },
+        messages: {
+            menu_name: {
+                required: "请填写菜单名称"
+            },
+            {% if pid <= 0 %}
+            menu_icon: {
+                required: "请填入菜单图标",
+            }
+            {% endif %}
+        }
+    });
+
     //保存菜单项
     function saveMenu() {
-        $.ajax({
-            url: 'addMenu',
-            data: $('#menuAddForm').serializeArray(),
-            dataType: 'json',
-            type: 'POST',
-            success: function (json) {
-                if (json.code == 1) {
-                    bootbox.hideAll();
-                    bootbox.alert({
-                        message:json.msg,
-                        buttons: {
-                            ok: {
-                                label: '确定',
-                                className: 'btn-success'
+        if ($('#menuAddForm').valid()) {
+            $.ajax({
+                url: 'addMenu',
+                data: $('#menuAddForm').serializeArray(),
+                dataType: 'json',
+                type: 'POST',
+                success: function (json) {
+                    if (json.code == 1) {
+                        bootbox.hideAll();
+                        bootbox.alert({
+                            message:json.msg,
+                            buttons: {
+                                ok: {
+                                    label: '确定',
+                                    className: 'btn-success'
+                                }
+                            },
+                            callback: function (rel) {
+                                window.location.reload(true);
                             }
-                        },
-                        callback: function (rel) {
-                            window.location.reload(true);
-                        }
-                    });
-                } else {
-                    bootbox.alert(json.msg);
+                        });
+                    } else {
+                        bootbox.alert(json.msg);
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 </script>
 {% endblock %}

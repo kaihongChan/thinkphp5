@@ -6,7 +6,7 @@
 {% block body %}
 <div class="row">
     <div class="col-sm-12">
-        <form class="form-horizontal m-t" id="addFunctionsForm">
+        <form class="form-horizontal m-t" id="addFunctionsForm" {% if isAdd %} action="addFunction" {% else %} action="editFunction" {% endif %}>
             <input type="hidden" id="fid" name="fid" value="{{ functionInfo.id }}"/>
             <!--<div class="form-group">-->
                 <!--<label class="col-sm-3 control-label">模块：</label>-->
@@ -90,11 +90,11 @@
 
         <hr >
         <div class="text-center">
-            <button class="btn btn-outline btn-info" type="button" id="saveFunctionBtn">
-                <i class="fa fa-check"></i>提交
+            <button class="btn btn-outline btn-info saveBtn" type="button">
+                <i class="fa fa-check"></i>提 交
             </button>
-            <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
-                <i class="fa fa-times"></i>关闭
+            <button class="btn btn-outline btn-default closeBtn">
+                <i class="fa fa-times"></i>关 闭
             </button>
         </div>
     </div>
@@ -109,6 +109,7 @@
 <script src="__static__/hplus/js/plugins/validate/messages_zh.min.js"></script>
 <script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
 <script src="__static__/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
+<script src="__static__/userDefine.js"></script>
 <script>
     //表单验证
     $("#addFunctionsForm").validate({
@@ -161,47 +162,14 @@
             },
         }
     });
-    //提交按钮监听
-    $('#saveFunctionBtn').click(function(){
-        {% if isAdd %} var __url = 'addFunction';{% else %} var __url = 'editFunction';{% endif %}
-        if ($('#addFunctionsForm').valid()) {
-            $.ajax({
-                url: __url,
-                data: $('#addFunctionsForm').serializeArray(),
-                dataType: "json",
-                type: 'POST',
-                success: function (result) {
-                    if(result.code == 1){
-                        bootbox.hideAll();
-                        bootbox.alert({
-                            message:result.msg,
-                            buttons: {
-                                ok: {
-                                    label: '确定',
-                                    className: 'btn-success'
-                                }
-                            },
-                            callback: function (rel) {
-                                window.location.reload(true);
-                            }
-                        });
-                    }else{
-                        bootbox.alert(result.msg);
-                    }
-                }
-            });
-        } else {
-            return;
-        }
-    });
-
+    //controller-action联动
     $('#controller').change(function () {
         var controller = $('#controller').val();
         if($.data(document.getElementById("action"), "previousValue")) {
             $.data(document.getElementById("action"), "previousValue").old = null;
         }
         $.ajax({
-            url: 'getActionByController',
+            url: '/admin/function/getActionByController',
             data: {'controller' : controller},
             dataType: "json",
             type: 'POST',
