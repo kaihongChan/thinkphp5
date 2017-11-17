@@ -35,9 +35,9 @@ class IndexController extends BaseController
      */
     public function contentAction()
     {
-        $menuList = User::getPowerMenuList();
-        $navigation = Menu::makeMenuTree($menuList);
-        dump($navigation);
+//        $menuList = User::getPowerMenuList();
+//        $navigation = Menu::makeMenuTree($menuList);
+//        dump($menuList);
         return view();
     }
 }

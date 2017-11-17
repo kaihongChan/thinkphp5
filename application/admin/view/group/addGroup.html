@@ -6,7 +6,7 @@
 {% block body %}
 <div class="row">
     <div class="col-sm-12">
-        <form class="form-horizontal" id="addGroupForm">
+        <form class="form-horizontal" id="addGroupForm" {% if isAdd %} action="addGroup" {% else %} action="editGroup" {% endif %}>
         <div class="row">
             <div class="col-sm-12">
                 <p class="alert-info text-center" style="margin: -10px -15px 10px;">基础信息</p>
@@ -83,10 +83,10 @@
     </form>
         <hr >
         <div class="text-center">
-            <button class="btn btn-outline btn-info" type="button" id="saveGroupBtn">
+            <button class="btn btn-outline btn-info saveBtn" type="button" id="saveGroupBtn">
                 <i class="fa fa-check"></i>提交
             </button>
-            <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+            <button class="btn btn-outline btn-default closeBtn">
                 <i class="fa fa-times"></i>关闭
             </button>
         </div>
@@ -103,6 +103,7 @@
 <script src="__static__/hplus/js/demo/form-validate-demo.min.js"></script>
 <script src="__static__/hplus/js/plugins/sweetalert/sweetalert.min.js"></script>
 <script src="__static__/hplus/js/content.min.js?v=1.0.0"></script>
+
 <script>
     $(function() {
         $("[data-toggle='tooltip']").tooltip();
@@ -153,39 +154,6 @@
                     required: "请至少勾选一个子项",
                     min : "请至少勾选一个子项"
                 }
-            }
-        });
-        //提交按钮监听
-        $('#saveGroupBtn').click(function(){
-            {% if isAdd %} var __url = 'addGroup';{% else %} var __url = 'editGroup';{% endif %}
-            if ($('#addGroupForm').valid()) {
-                $.ajax({
-                    url: __url,
-                    data: $('#addGroupForm').serializeArray(),
-                    dataType: "json",
-                    type: 'POST',
-                    success: function (result) {
-                        if(result.code == 1){
-                            bootbox.hideAll();
-                            bootbox.alert({
-                                message:result.msg,
-                                buttons: {
-                                    ok: {
-                                        label: '确定',
-                                        className: 'btn-success'
-                                    }
-                                },
-                                callback: function (rel) {
-                                    window.location.reload(true);
-                                }
-                            });
-                        }else{
-                            bootbox.alert(result.msg);
-                        }
-                    }
-                });
-            } else {
-                return;
             }
         });
     });

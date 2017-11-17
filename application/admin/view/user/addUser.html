@@ -3,7 +3,7 @@
 {% block body %}
 <div class="row">
     <div class="col-sm-12">
-        <form class="form-horizontal m-t" id="addUserForm">
+        <form class="form-horizontal m-t" id="addUserForm" {% if isAdd %} action="addUser" {% else %} action="editUser" {% endif %}>
             <input type="hidden" id="uid" name="uid" value="{{ userInfo.id }}">
             <div class="form-group">
                 <label class="col-sm-3 control-label">所属用户组：</label>
@@ -67,10 +67,10 @@
         <div class="space-20"></div>
 
         <div class="text-center">
-            <button class="btn btn-outline btn-info" type="button" id="saveUserBtn">
+            <button class="btn btn-outline btn-info saveBtn" type="button" id="saveUserBtn">
                 <i class="fa fa-check"></i>提交
             </button>
-            <button class="btn btn-outline btn-default" onclick="bootbox.hideAll();">
+            <button class="btn btn-outline btn-default closeBtn">
                 <i class="fa fa-times"></i>关闭
             </button>
         </div>
@@ -156,39 +156,6 @@ $("#addUserForm").validate({
         }
     }
 });
-        //提交按钮监听
-$('#saveUserBtn').click(function(){
-            {% if isAdd %} var __url = 'addUser';{% else %} var __url = 'editUser';{% endif %}
-            if ($('#addUserForm').valid()) {
-                $.ajax({
-                    url: __url,
-                    data: $('#addUserForm').serializeArray(),
-                    dataType: "json",
-                    type: 'POST',
-                    success: function (result) {
-                        if(result.code == 1){
-                            bootbox.hideAll();
-                            bootbox.alert({
-                                message:result.msg,
-                                buttons: {
-                                    ok: {
-                                        label: '确定',
-                                        className: 'btn-success'
-                                    }
-                                },
-                                callback: function (rel) {
-                                    window.location.reload(true);
-                                }
-                            });
-                        }else{
-                            bootbox.alert(result.msg);
-                        }
-                    }
-                });
-            } else {
-                return;
-            }
-        });
 });
 </script>
 {% endblock %}
