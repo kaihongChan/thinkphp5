@@ -113,13 +113,14 @@
         //全选/反选
         $('.checkbox-father').click(function () {
             var old_child_checked = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']:checked").length;
-            if (old_child_checked) {
+            if (old_child_checked) {//取消全部已勾选子项
                 $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").prop('checked', false);
-                var new_child_length = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']:checked").length;
-                $('#power_checked').val(parseInt(checked_length)-parseInt(new_child_length));
-            } else {
+                checked_length = $('#power_checked').val();
+                $('#power_checked').val(parseInt(checked_length)-parseInt(old_child_checked));
+            } else {//勾选全部子项
                 $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']").prop('checked', true);
                 var new_child_length = $(this).parents('.checkbox_block').find(".checkbox_child input[type='checkbox']:checked").length;
+                checked_length = $('#power_checked').val();
                 $('#power_checked').val(parseInt(checked_length) + parseInt(new_child_length));
             }
         });
